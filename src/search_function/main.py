@@ -19,12 +19,14 @@ from typing import  List
 
 from google.api_core.client_options import ClientOptions
 from google.cloud import discoveryengine_v1beta as discoveryengine
+from google.protobuf.json_format import MessageToJson
 
-# (developer): Uncomment these variables before running the sample.
-project_id = "ccai-demo-414406"
-location = "global"                    
-data_store_id = "merchdata_1708064216780"
-query = "blue shirts"
+import functions_framework
+
+project_id = os.getenv("PROJECT_ID","ccai-demo-414406")
+location = os.getenv("LOCATION")                    
+data_store_id = os.getenv("DATA_STORE_ID", "merchdata_1708064216780")
+
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="/usr/local/google/home/manasakandula/demos/keys/ccai_key.json"
 
 def search_sample(
@@ -77,7 +79,7 @@ def search_sample(
     request = discoveryengine.SearchRequest(
         serving_config=serving_config,
         query=search_query,
-        page_size=10,
+        page_size=5,
         content_search_spec=content_search_spec,
         query_expansion_spec=discoveryengine.SearchRequest.QueryExpansionSpec(
             condition=discoveryengine.SearchRequest.QueryExpansionSpec.Condition.AUTO,
@@ -88,13 +90,20 @@ def search_sample(
     )
 
     response = client.search(request)
-    print(response)
+    json_response = MessageToJson(response._pb)
+    print(json_response)
 
-    return response
+    return json_response
 
-search_sample(
-    project_id,
-    location,
-    data_store_id,
-    query) 
 # [END genappbuilder_search]
+
+@functions_framework.http
+def http_search(request):
+    request_args = request.args
+
+    if "query" in request_args:
+        query = request_args.get("query")
+        return search_sample(project_id, location, data_store_id, query)
+    else:
+        return "No query found", 403
+    
