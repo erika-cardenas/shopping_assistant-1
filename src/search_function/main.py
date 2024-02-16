@@ -14,7 +14,7 @@
 #
 
 # [START genappbuilder_search]
-import os
+import os, json
 from typing import  List
 
 from google.api_core.client_options import ClientOptions
@@ -88,12 +88,20 @@ def search_sample(
     )
 
     response = client.search(request)
-    json_response = MessageToJson(response._pb)
+    json_response = extract_results(MessageToJson(response._pb))
     print(json_response)
-
     return json_response
 
 # [END genappbuilder_search]
+def extract_results(json_string):
+    data = json.loads(json_string)  # Parse the JSON string
+
+    # Assuming "results" is a top-level field
+    if "results" in data:
+        new_data = {"results": data["results"]} 
+        return new_data # json.dumps(new_data)  # Serialize back to JSON
+    else:
+        return None  # Or another handling mechanism if "results" not found
 
 @functions_framework.http
 def http_search(request):
