@@ -5,7 +5,7 @@ def remove_columns(input_file, output_file, columns_to_remove):
         reader = csv.reader(infile)
         writer = csv.writer(outfile)
 
-        header = next(reader)  # Read the header
+        header = next(reader) 
         column_indexes = [header.index(col) for col in header if col not in columns_to_remove]  
 
         writer.writerow([header[i] for i in column_indexes])  # Write modified header
