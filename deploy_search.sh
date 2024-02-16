@@ -9,4 +9,5 @@ gcloud functions deploy search-function \
   --entry-point=http_search \
   --trigger-http \
   --allow-unauthenticated \
+  --run-service-account=$FUNCTIONS_SERVICE_ACCOUNT \
   --set-env-vars=PROJECT_ID=$PROJECT_ID,LOCATION=$LOCATION,DATA_STORE_ID=$SEARCH_DATA_STORE_ID

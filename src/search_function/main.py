@@ -27,8 +27,6 @@ project_id = os.getenv("PROJECT_ID","ccai-demo-414406")
 location = os.getenv("LOCATION")                    
 data_store_id = os.getenv("DATA_STORE_ID", "merchdata_1708064216780")
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="/usr/local/google/home/manasakandula/demos/keys/ccai_key.json"
-
 def search_sample(
     project_id: str,
     location: str,
