@@ -14,7 +14,7 @@
 #
 
 # [START genappbuilder_search]
-import os, json
+import os, json, re
 from typing import  List
 
 from google.api_core.client_options import ClientOptions
@@ -22,11 +22,12 @@ from google.cloud import discoveryengine_v1beta as discoveryengine
 from google.protobuf.json_format import MessageToJson
 
 import functions_framework
+import requests
 
-project_id = os.getenv("PROJECT_ID","ccai-demo-414406")
+project_id = os.getenv("PROJECT_ID")
 location = os.getenv("LOCATION")                    
-data_store_id = os.getenv("DATA_STORE_ID", "catalog-view-with-trending_1708092254384")
-
+data_store_id = os.getenv("SEARCH_DATA_STORE_ID")
+thumbnail_url = os.getenv("THUMBNAIL_URL")
 def search_sample(
     project_id: str,
     location: str,
@@ -91,44 +92,27 @@ def search_sample(
     response = client.search(request)
     json_response = extract_results(MessageToJson(response._pb))
     return json_response
-    
-def get_product_details(data, desired_title):
-    product_results = []
 
-# Iterate through each result
-    for result in data["results"]:
-        title = result["document"]["structData"]["title"]
+def format_title(text):
 
-        # Check if title matches exactly
-        if title == desired_title:
-            # Extract relevant data for unique result
-            product_result = {
-                "title": title,
-                "uri": result["document"]["structData"]["uri"],
-                "seller": result["document"]["structData"]["attributes"]["seller_name"]["text"],
-                "price": result["document"]["structData"]["priceInfo"]["price"]+ " USD",
-                "condition": result["document"]["structData"]["attributes"]["condition"]["text"]
-            }
+  # Regular expression pattern to match letters and numbers (alphanumeric)
+  regex = r"[^a-zA-Z0-9\s]"  
 
-            # Add unique result to the list
-            product_results.append(product_result)
+  result = re.sub(regex, '', text)  
 
-    print(product_results)
-    return json.dumps(product_results)
-
+  return result
 def create_unique_results(data):
-    unique_results = []
-
 # Iterate through each result
+    unique_results = []
     for result in data["results"]:
-        title = result["document"]["structData"]["title"]
+        formatted_title = format_title(result["document"]["structData"]["title"])
 
         # Check if title already exists in unique_results
-        if not any(existing_result["title"] == title for existing_result in unique_results):
+        if not any(existing_result["title"] == formatted_title for existing_result in unique_results):
             # Extract relevant data for unique result
             unique_result = {
-                "title": title,
-                "uri": result["document"]["structData"]["uri"],
+                "title": formatted_title,
+                "link": result["document"]["structData"]["link"],
                 "sellers": []
             }
 
@@ -136,7 +120,14 @@ def create_unique_results(data):
             unique_results.append(unique_result)
 
         # Add seller name to the corresponding unique result
-        unique_results[-1]["sellers"].append(result["document"]["structData"]["attributes"]["seller_name"]["text"])
+        seller = {
+            "seller_name": result["document"]["structData"]["seller"],
+            "seller_location": result["document"]["structData"]["seller_location"],
+            "seller_rating": result["document"]["structData"]["seller_rating"],
+            "item_price": result["document"]["structData"]["price"],
+            "condition": result["document"]["structData"]["condition"],
+        }   
+        unique_results[-1]["sellers"].append(seller)
     return json.dumps(unique_results)
 
 def extract_results(json_string):
@@ -157,6 +148,7 @@ def http_search(request):
     color=""
     size=""
     query=""
+    condition=""
 
     if "query" in request_args:
         query = request_args.get("query")
@@ -170,25 +162,18 @@ def http_search(request):
         color = request_args.get("color")
     if "size" in request_args:
         size = request_args.get("size") 
-    query_string = query+" "+product +" "+ color +" "+ size
-    
+    if "condition" in request_args:
+        condition = request_args.get("condition") 
+    query_string = query+" "+product +" "+ color +" "+ size+" "+ condition
+    final_response = get_results(query_string)
+    return final_response
+
+def get_results(query_string):
     results = search_sample(project_id, location, data_store_id, query_string, 30)
-    unique_respone = create_unique_results(results)
-    return unique_respone
+    if results is None:
+        return {"thumbnail": "", "results":[]}
+    unique_response = create_unique_results(results)
 
-
-@functions_framework.http
-def http_product_details(request):
-    request_args = request.args
-    query=""
-
-    if "query" in request_args:
-        query = request_args.get("query")
-    else:
-        return "",401
-    
-    results = search_sample(project_id, location, data_store_id, query, 30)
-
-    return get_product_details(results, query)
-
-search_sample(project_id, location, data_store_id, "new shirts", 30)
+    url_response = requests.post(thumbnail_url, data=unique_response, headers={'Content-type': 'application/json'})
+    final_response = {"thumbnail": url_response.json()["url"], "results": unique_response} 
+    return final_response
