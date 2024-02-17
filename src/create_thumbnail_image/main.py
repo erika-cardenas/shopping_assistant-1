@@ -1,19 +1,13 @@
-import requests, os
+import requests, os, json
 from PIL import Image, ImageDraw
-import uuid 
-from google.cloud import storage
+from google.cloud import storage, pubsub_v1
 import functions_framework
+import urllib.parse
 
 PROJECT_ID = os.getenv("PROJECT_ID")
 BUCKET = os.getenv("BUCKET")
-
+TOPIC = os.getenv("TOPIC", "thumbnail_generation")
 os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
-
-import requests
-from PIL import Image, ImageDraw, ImageFont
-
-import requests
-from PIL import Image, ImageDraw, ImageFont
 
 def create_image_grid(data):
     THUMB_SIZE = (250, 250) 
@@ -56,54 +50,50 @@ def create_image_grid(data):
 
     return grid_image
 
-def upload_to_gcs(image, bucket_name, filename):
+def extract_filename_from_url(url):
+  parsed_url = urllib.parse.urlparse(url)
+  filename = parsed_url.path.split('/')[-1]
+  return filename if filename else None
+
+def upload_to_gcs(image, bucket_name, url):
     """Uploads an image to a Google Cloud Storage bucket."""
     storage_client = storage.Client(project=PROJECT_ID)
     bucket = storage_client.bucket(bucket_name)
+    filename = extract_filename_from_url(url)
     blob = bucket.blob(filename)
 
     with open(filename, 'wb') as f:
         image.save(f, 'JPEG')
     blob.upload_from_filename(filename)
-    return blob.public_url
+    return 
 
-@functions_framework.http
-def http_create_thumbnail(request):
-    data = request.get_json()
-    filename = f"thumbnail_v2_{uuid.uuid4()}.jpg"
-    grid_image = create_image_grid(data)
-    url = upload_to_gcs(grid_image, BUCKET, filename) 
-    return {"url": url}
+def pull_messages(subscription_name):
+    # Create a Subscriber client
+    subscriber = pubsub_v1.SubscriberClient()
+    subscription_path = subscriber.subscription_path(PROJECT_ID, subscription_name)
 
-# To be only used for local testing
-def test_local():
-    data =[
-            {
-                "title": "Large item",
-                "link": "https://shop.googlemerchandisestore.com/store/20190522377/assets/items/images/GGCPGBJB162499.jpg"
-            },
-             {
-                "title": "Other Large item",
-                "link": "https://shop.googlemerchandisestore.com/store/20190522377/assets/items/images/GGCPGBJB162499.jpg"
-            },
-            {
-                "title": "Other Large item",
-                "link": "https://shop.googlemerchandisestore.com/store/20190522377/assets/items/images/GGCPGBJB162499.jpg"
-            },
-            {
-                "title": "Other Very Large item",
-                "link": "https://shop.googlemerchandisestore.com/store/20190522377/assets/items/images/GGCPGBJB162499.jpg"
-            },
-            {
-                "title": "Other Large item",
-                "link": "https://shop.googlemerchandisestore.com/store/20190522377/assets/items/images/GGCPGBJB162499.jpg"
-            },
-            {
-                "title": "Other Large item",
-                "link": "https://shop.googlemerchandisestore.com/store/20190522377/assets/items/images/GGCPGBJB162499.jpg"
-            }
-        ]
-    grid_image = create_image_grid(data)
-    grid_image.save("output_image.jpg", "JPEG")
+    def callback(message):
+        print(f"Received message: {message}")
+        message_data_str = message.data.decode('utf-8')
+        message_json = json.loads(message_data_str)
+        print(f"JSON Data: {message_json}")
+        image = create_image_grid(message_json["data"])
+        upload_to_gcs(image, BUCKET, message_json["link"])
+        message.ack()
+
+    streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
+    with subscriber:
+        try:
+            # Blocks until terminated (usually with Ctrl+C if running interactively)
+            streaming_pull_future.result() 
+        except KeyboardInterrupt:  
+            streaming_pull_future.cancel()  
     return
+
+def image_create(data):
+    grid_image = create_image_grid(data)
+    return grid_image
+
+
+
 
