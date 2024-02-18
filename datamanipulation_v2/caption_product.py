@@ -6,28 +6,17 @@ from PIL import Image as im
 import io, csv, json, random
 
 def clean_string(text):
-  """
-  Removes all newline characters (\n), single quotes ('), backticks (`), and the term "json" from a string.
-
-  Args:
-      text: The string to clean.
-
-  Returns:
-      The cleaned string.
-  """
-
   cleaned_text = text.replace("\n", "")
   cleaned_text = cleaned_text.replace("'", "")
   cleaned_text = cleaned_text.replace("`", "")
   cleaned_text = cleaned_text.replace("json", "")
-
   return cleaned_text
 
 def generate_caption(image):
   vertexai.init(project="ccai-demo-414406", location="us-central1")
   model = GenerativeModel("gemini-pro-vision")
   response = model.generate_content(
-    [image, """Provide a list of all the following product attributes for the main product in the image in the format {"category":<val>, "color":<val>, "model":<val>, "title":<val>,  "short_description":<val>}  The string should directly be compatible with json.loads() """],
+    [image, """Provide a list of all the following product attributes for the main product in the image in the format {"category":<val>, "color":<val>, "model":<val>, "new_title":<val>,  "short_description":<val>}  The string should directly be compatible with json.loads() """],
     generation_config={
         "max_output_tokens": 2048,
         "temperature": 0.4,
@@ -55,8 +44,8 @@ def resize_and_open_image(image_url):
 
     # Resize the image
     img_small = image.resize((200, new_height), im.ADAPTIVE)
-    img_small.save("small.jpg")
-    part_img = Part.from_image(Image.load_from_file("small.jpg"))
+    img_small.save("small_2.jpg")
+    part_img = Part.from_image(Image.load_from_file("small_2.jpg"))
 
     return part_img
 
@@ -71,24 +60,35 @@ def caption_image(link):
       caption_dict[link] = caption
     return caption_dict[link]
 
-def add_captions_to_products( products_file, output_file):
+def skip_processed(file, product_reader, ):
+  #  with open(file) as f:
+  #   # lines_processed = sum(1 for f in file)
+   lines_processed = 490
+   for i in range(1,lines_processed):
+      next(product_reader)
+   return product_reader
+
+def add_captions_to_products(products_file, output_file):
     with open(products_file, 'r', newline='') as pfile, \
-         open(output_file, 'w', newline='') as outfile:
-
+        open(output_file, 'a', newline='') as outfile:
         product_reader = csv.reader(pfile)
-
-        product_header = next(product_reader) + ['seller_name']  # Add seller_name to product header
+        product_header = next(product_reader) + ['color'] + ['description'] + ["short_description"]  # Add seller_name to product header
         writer = csv.writer(outfile)
-        writer.writerow(product_header)
+        # writer.writerow(product_header)
 
+        product_reader = skip_processed(output_file, product_reader)
         for product_row in product_reader:
-            link = product_row[5]
-            caption = caption_image(link=link)
-            cleaned = clean_string(caption)
-            new_attributes = json.loads(cleaned)
-            product_row[1] = new_attributes["title"]
-            product_row[2] = new_attributes["category"]
-            writer.writerow(product_row + [new_attributes["color"]] + [new_attributes["short_description"]])
+            try:
+              link = product_row[5]
+              caption = caption_image(link=link)
+              cleaned = clean_string(caption)
+              new_attributes = json.loads(cleaned)
+              product_row[2] = new_attributes["category"]
+              writer.writerow(product_row + [new_attributes["color"]] + [new_attributes["short_description"]] + [new_attributes["new_title"]])
+            except Exception as e:
+               print("issue with ", product_row)
+               print(e)
+               pass
         
 def generate_product_condition():
     conditions = ['new', 'good as new', 'used']  # Renamed 'states' to 'conditions'
@@ -98,5 +98,5 @@ def generate_product_condition():
 
 if __name__ == "__main__":
     products_file = 'datamanipulation_v2/products_with_costs_stage4.csv'
-    output_file = 'datamanipulation_v2/final_catalog.csv'
+    output_file = 'datamanipulation_v2/final_catalog_with_keywords.csv'
     add_captions_to_products(products_file, output_file)
