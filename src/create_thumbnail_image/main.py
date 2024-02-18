@@ -1,13 +1,13 @@
-import requests, os, json
+import requests, os, json, base64
 from PIL import Image, ImageDraw
 from google.cloud import storage, pubsub_v1
+from cloudevents.http import CloudEvent
 import functions_framework
 import urllib.parse
 
 PROJECT_ID = os.getenv("PROJECT_ID")
 BUCKET = os.getenv("BUCKET")
 TOPIC = os.getenv("TOPIC", "thumbnail_generation")
-os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
 def create_image_grid(data):
     THUMB_SIZE = (250, 250) 
@@ -67,33 +67,25 @@ def upload_to_gcs(image, bucket_name, url):
     blob.upload_from_filename(filename)
     return 
 
-def pull_messages(subscription_name):
-    # Create a Subscriber client
-    subscriber = pubsub_v1.SubscriberClient()
-    subscription_path = subscriber.subscription_path(PROJECT_ID, subscription_name)
+@functions_framework.cloud_event
+def create_image(cloud_event: CloudEvent) -> None:
+    decoded_message = base64.b64decode(cloud_event.data["message"]["data"]).decode()    
+    print(f"Received message: {decoded_message}")
+    message_json = json.loads(decoded_message)
+    print(f"JSON Data: {message_json}")
+    image = create_image_grid(message_json["data"])
+    upload_to_gcs(image, BUCKET, message_json["link"])
 
-    def callback(message):
-        print(f"Received message: {message}")
-        message_data_str = message.data.decode('utf-8')
-        message_json = json.loads(message_data_str)
-        print(f"JSON Data: {message_json}")
-        image = create_image_grid(message_json["data"])
-        upload_to_gcs(image, BUCKET, message_json["link"])
-        message.ack()
 
-    streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
-    with subscriber:
-        try:
-            # Blocks until terminated (usually with Ctrl+C if running interactively)
-            streaming_pull_future.result() 
-        except KeyboardInterrupt:  
-            streaming_pull_future.cancel()  
-    return
+def test_decode():
+    message_data= {
+  "message": {
+    "_comment": "data is base64 encoded string of 'Hello World'",
+    "data": "SGVsbG8gV29ybGQ="
+  }
+}
+    print(base64.b64decode(message_data["message"]["data"]).decode())
 
-def image_create(data):
+def test_image_create(data):
     grid_image = create_image_grid(data)
     return grid_image
-
-
-
-
