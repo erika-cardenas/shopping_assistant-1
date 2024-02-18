@@ -7,9 +7,58 @@ city_probabilities = [0.2, 0.15, 0.1, 0.08, 0.07]
 
 # Function to generate a random seller name
 def generate_seller_name():
-  first_names = ["Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Grace", "Henry", "Isabella", "Jack"]
-  last_names = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Miller", "Garcia", "Rodriguez", "Wilson", "Lewis"]
-  return random.choice(first_names) + " " + random.choice(last_names)
+  seller_names = [
+    "The Graphic Garage", 
+    "Canvas Couture", 
+    "Print Pop",
+    "Novelty Niche", 
+    "Fandom Finds",
+    "Retro Remix", 
+    "Quirk & Co.", 
+    "Expression Essentials", 
+    "Meme Mart",
+    "Wearable Wit",
+    "Cult Classic Closet",
+    "Abstract Avenue",
+    "Pixel Paradise",
+    "Minimalist Manifesto", 
+    "Statement Supply",
+    "Urban Edge",
+    "Nostalgic Threads",
+    "DIY Dreams",
+    "The Bold Bazaar",
+    "Geek Chic Boutique",
+    "Custom Culture",
+    "Artisan Alley",
+    "Pop Art Provisions",
+    "Vintage Vault",
+    "Indie Ink",
+    "Gamer Gear",
+    "Eclectic Emporium",
+    "Sarcasm Society",
+    "Cosmic Creations", 
+    "Wanderlust Wardrobe",
+    "Gadget Guru",
+    "Mood Merch",
+    "Hashtag Hustle",
+    "Boho Bazaar",
+    "Zen Zone",
+    "Mystic Market",
+    "Rebel Threads",
+    "Self-Love Supply",
+    "Motivation Merch",
+    "Dreamer's Den",
+    "Vinyl Vault",
+    "Retro Rhapsody", 
+    "90s Nostalgia",
+    "Offbeat Outfitters",
+    "Misfit Merch",
+    "Ironic Icons",
+    "Meta Merch",
+    "Inside Joke Emporium" 
+]
+
+  return random.choice(seller_names)
 
 # Function to generate a random seller rating
 def generate_seller_rating():

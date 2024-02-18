@@ -18,11 +18,11 @@ def add_sellers_to_products(sellers_file, products_file, output_file):
         for product_row in product_reader:
             num_repeats = random.randint(1, 5)  # Repeat 1-5 times
             for _ in range(num_repeats):
-                seller = random.choice(sellers)[1]  # Randomly choose a seller
-                writer.writerow(product_row + [seller])
+                seller = random.choice(sellers)  
+                writer.writerow(product_row + [seller[1]] + [seller[3]])
 
 if __name__ == "__main__":
-    sellers_file = 'sellers.csv'
-    products_file = 'output_stage2.csv'
-    output_file = 'products_with_sellers_stage3.csv'
+    sellers_file = 'csellers.csv'
+    products_file = 'datamanipulation_v2/output_stage2.csv'
+    output_file = 'datamanipulation_v2/products_with_sellers_stage3.csv'
     add_sellers_to_products(sellers_file, products_file, output_file)

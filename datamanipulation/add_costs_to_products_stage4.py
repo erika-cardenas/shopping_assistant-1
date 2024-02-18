@@ -25,6 +25,6 @@ def update_product_costs(products_file, output_file):
             writer.writerow(row)
 
 if __name__ == "__main__":
-    products_file = 'products_with_sellers_stage3.csv'
-    output_file = 'products_with_costs_stage4.csv'
+    products_file = 'datamanipulation_v2/products_with_sellers_stage3.csv'
+    output_file = 'datamanipulation_v2/products_with_costs_stage4.csv'
     update_product_costs(products_file, output_file)

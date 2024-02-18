@@ -1,41 +1,41 @@
 seller_id,seller_name,seller_location,seller_rating
-1,Jack Williams,Houston,3.3
-2,Bob Wilson,New York City,4.1
-3,Alice Johnson,Chicago,4.2
-4,Henry Miller,New York City,3.6
-5,Eve Jones,New York City,3.8
-6,Bob Miller,New York City,3.6
-7,Eve Garcia,New York City,4.3
-8,Isabella Miller,Chicago,3.1
-9,Eve Wilson,New York City,4.3
-10,Eve Lewis,Houston,2.8
-11,David Wilson,New York City,2.9
-12,Isabella Garcia,Phoenix,2.8
-13,Alice Rodriguez,New York City,4.2
-14,Alice Jones,Chicago,4.4
-15,Henry Wilson,Houston,3.3
-16,Isabella Smith,New York City,4.1
-17,Grace Johnson,Los Angeles,2.6
-18,Jack Garcia,Houston,4.2
-19,Alice Garcia,New York City,3.6
-20,Bob Wilson,New York City,3.9
-21,Eve Rodriguez,New York City,3.7
-22,Isabella Miller,New York City,2.9
-23,Jack Wilson,Houston,4.0
-24,Isabella Lewis,New York City,3.3
-25,Isabella Johnson,New York City,2.6
-26,Henry Lewis,Los Angeles,2.7
-27,Frank Lewis,Chicago,4.3
-28,Henry Johnson,New York City,3.7
-29,Alice Wilson,Houston,2.5
-30,Grace Brown,Houston,4.2
-31,Charlie Garcia,Houston,2.5
-32,Isabella Smith,New York City,4.4
-33,Grace Rodriguez,Houston,2.5
-34,Jack Williams,Chicago,4.2
-35,Frank Miller,New York City,4.0
-36,Frank Wilson,Houston,3.2
-37,Eve Miller,Phoenix,3.1
-38,Alice Smith,Los Angeles,4.3
-39,Bob Wilson,Phoenix,4.1
-40,Frank Smith,New York City,2.9
+1,Fandom Finds,New York City,2.5
+2,Inside Joke Emporium,New York City,4.0
+3,Custom Culture,New York City,3.6
+4,Pop Art Provisions,Phoenix,3.0
+5,Mystic Market,Los Angeles,4.2
+6,The Graphic Garage,Houston,4.1
+7,Quirk & Co.,Phoenix,4.5
+8,Zen Zone,New York City,2.7
+9,Motivation Merch,Houston,3.1
+10,Quirk & Co.,Houston,3.1
+11,Gamer Gear,Chicago,3.6
+12,Wanderlust Wardrobe,Houston,3.2
+13,Rebel Threads,New York City,2.9
+14,Offbeat Outfitters,New York City,2.7
+15,Custom Culture,New York City,2.7
+16,Mystic Market,New York City,3.7
+17,Zen Zone,Houston,4.3
+18,Meme Mart,Phoenix,3.9
+19,Fandom Finds,New York City,3.3
+20,90s Nostalgia,Chicago,4.0
+21,Fandom Finds,New York City,3.0
+22,Expression Essentials,New York City,3.1
+23,Fandom Finds,New York City,3.3
+24,Urban Edge,New York City,2.8
+25,Gadget Guru,New York City,3.0
+26,Canvas Couture,Chicago,2.6
+27,Sarcasm Society,New York City,3.8
+28,Gadget Guru,Los Angeles,4.0
+29,Vinyl Vault,Los Angeles,4.4
+30,Dreamer's Den,Los Angeles,3.2
+31,The Graphic Garage,Houston,3.7
+32,Sarcasm Society,New York City,3.0
+33,Cult Classic Closet,New York City,3.6
+34,Print Pop,Los Angeles,4.1
+35,Mystic Market,Los Angeles,3.0
+36,Misfit Merch,Los Angeles,3.8
+37,Ironic Icons,New York City,2.5
+38,Minimalist Manifesto,New York City,3.9
+39,Print Pop,Los Angeles,2.5
+40,Canvas Couture,New York City,3.4
