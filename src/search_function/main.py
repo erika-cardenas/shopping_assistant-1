@@ -113,20 +113,23 @@ def create_unique_results(data):
             unique_result = {
                 "title": formatted_title,
                 "link": result["document"]["structData"]["link"],
-                "sellers": []
-            }
+                "sellers": [],
+                "category":  result["document"]["structData"]["category"],
+                "description": result["document"]["structData"]["short_description"],
+                "color": result["document"]["structData"]["color"]
+                }            
 
             # Add unique result to the list
             unique_results.append(unique_result)
 
         # Add seller name to the corresponding unique result
         seller = {
-            "seller_name": result["document"]["structData"]["seller"],
-            "seller_location": result["document"]["structData"]["seller_location"],
+            "seller_name": result["document"]["structData"]["seller_name"],
             "seller_rating": result["document"]["structData"]["seller_rating"],
-            "item_price": result["document"]["structData"]["price"],
+            "price": result["document"]["structData"]["price"],
             "condition": result["document"]["structData"]["condition"],
         }   
+
         unique_results[-1]["sellers"].append(seller)
     return json.dumps(unique_results)
 
@@ -177,3 +180,5 @@ def get_results(query_string):
     url_response = requests.post(thumbnail_url, data=unique_response, headers={'Content-type': 'application/json'})
     final_response = {"thumbnail": url_response.json()["url"], "results": unique_response} 
     return final_response
+
+print(get_results("green shirt"))

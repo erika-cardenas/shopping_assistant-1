@@ -1,7 +1,7 @@
 # !bin/bash
 gcloud config set project $PROJECT_ID
 
-gcloud functions deploy search_v2 \
+gcloud functions deploy search_v3 \
   --gen2 \
   --region=us-central1 \
   --runtime=python310 \
