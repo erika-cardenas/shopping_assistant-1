@@ -7,6 +7,7 @@ gcloud functions deploy search_v3 \
   --runtime=python310 \
   --source=./src/search_function \
   --entry-point=http_search \
+  --min-instances=1\
   --trigger-http \
   --allow-unauthenticated \
   --run-service-account=$FUNCTIONS_SERVICE_ACCOUNT \

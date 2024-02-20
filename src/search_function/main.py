@@ -28,6 +28,7 @@ project_id = os.getenv("PROJECT_ID")
 location = os.getenv("LOCATION")                    
 data_store_id = os.getenv("SEARCH_DATA_STORE_ID")
 thumbnail_url = os.getenv("THUMBNAIL_URL")
+num_results_approx = os.getenv("EXPECTED_RESULTS", 6)
 def search_sample(
     project_id: str,
     location: str,
@@ -104,19 +105,20 @@ def format_title(text):
 def create_unique_results(data):
 # Iterate through each result
     unique_results = []
-    for result in data["results"]:
-        formatted_title = format_title(result["document"]["structData"]["title"])
+    for d in data["results"]:
+        result = d["document"]["structData"]
+        formatted_title = format_title(result["title"])
 
         # Check if title already exists in unique_results
         if not any(existing_result["title"] == formatted_title for existing_result in unique_results):
             # Extract relevant data for unique result
             unique_result = {
                 "title": formatted_title,
-                "link": result["document"]["structData"]["link"],
+                "link": result["link"],
                 "sellers": [],
-                "category":  result["document"]["structData"]["category"],
-                "description": result["document"]["structData"]["short_description"],
-                "color": result["document"]["structData"]["color"]
+                "category":  result["category"],
+                "description": result["description"],
+                "html_image": "<img src="+ result["link"] + " width=300px >"
                 }            
 
             # Add unique result to the list
@@ -124,14 +126,14 @@ def create_unique_results(data):
 
         # Add seller name to the corresponding unique result
         seller = {
-            "seller_name": result["document"]["structData"]["seller_name"],
-            "seller_rating": result["document"]["structData"]["seller_rating"],
-            "price": result["document"]["structData"]["price"],
-            "condition": result["document"]["structData"]["condition"],
+            "seller_name": result["seller_name"],
+            "seller_rating": float(result["seller_rating"]),
+            "item_price": float(result["price"]),
+            "item_condition": result["condition"],
         }   
 
         unique_results[-1]["sellers"].append(seller)
-    return json.dumps(unique_results)
+    return unique_results
 
 def extract_results(json_string):
     data = json.loads(json_string)  # Parse the JSON string
@@ -147,38 +149,34 @@ def extract_results(json_string):
 def http_search(request):
     request_args = request.args
 
-    product=""
-    color=""
-    size=""
-    query=""
-    condition=""
-
     if "query" in request_args:
         query = request_args.get("query")
         if query=="":
             query = "merch"
-    if "product" in request_args:
-        product = request_args.get("product")
-    if  "product"=="" and "query"=="":
-        query="merch"
-    if "color" in request_args:
-        color = request_args.get("color")
-    if "size" in request_args:
-        size = request_args.get("size") 
-    if "condition" in request_args:
-        condition = request_args.get("condition") 
-    query_string = query+" "+product +" "+ color +" "+ size+" "+ condition
-    final_response = get_results(query_string)
+   
+    final_response = get_results(query)
     return final_response
+
+def get_html_products(query, unique_results):
+    title_string = "<h3>"+ query+ "</h3>" + "<hr>"
+    result_string = ""
+    for result in unique_results:
+        item_string =  "<h4>" + result["title"] + "<h4> " + "<p>" + result["description"]+ "</p>" "<hr>"
+        result_string+= item_string
+    return title_string  + result_string
+
+def get_html_thumbnail(thumbnail_url):
+    html_string = "<img src="+ thumbnail_url + " width=500px >"
+    return html_string
+
 
 def get_results(query_string):
-    results = search_sample(project_id, location, data_store_id, query_string, 30)
+    results = search_sample(project_id, location, data_store_id, query_string, num_results_approx*3)
     if results is None:
-        return {"thumbnail": "", "results":[]}
-    unique_response = create_unique_results(results)
-
-    url_response = requests.post(thumbnail_url, data=unique_response, headers={'Content-type': 'application/json'})
-    final_response = {"thumbnail": url_response.json()["url"], "results": unique_response} 
+        return {"thumbnail": "", "html_products":"", "results":[]}
+    formatted_results = create_unique_results(results)
+    requests.post(thumbnail_url, data=json.dumps(formatted_results), headers={'Content-type': 'application/json'})    
+    final_response = {"results": formatted_results, "html_products":get_html_products(query_string,formatted_results)} 
     return final_response
-
-print(get_results("green shirt"))
+results = get_results("green journals")
+print(results)

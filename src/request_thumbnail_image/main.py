@@ -1,5 +1,4 @@
-import requests, os, json
-from PIL import Image, ImageDraw
+import os, json
 import uuid 
 from google.cloud import storage, pubsub_v1
 import functions_framework
@@ -63,11 +62,18 @@ local_testing_data =[
             }
         ]
 
-
+import time
 def test_image_create_local():
+    start_time = time.perf_counter()
     filename = f"static_test_{uuid.uuid4()}.jpg"
     url = create_gcs(filename)
+    end_time = time.perf_counter()
+    print("create gcs: ", end_time-start_time)
+    
+    start_time = time.perf_counter()
     publish_message(url, local_testing_data)
+    end_time = time.perf_counter()
+    print("publish message: ", end_time-start_time)
     print(url)
     return {"url": url}
 
