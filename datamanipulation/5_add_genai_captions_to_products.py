@@ -60,10 +60,9 @@ def caption_image(link):
       caption_dict[link] = caption
     return caption_dict[link]
 
-def skip_processed(file, product_reader, ):
-  #  with open(file) as f:
-  #   # lines_processed = sum(1 for f in file)
-   lines_processed = 0
+def skip_processed(file, product_reader):
+   with open(file) as f:
+    lines_processed = sum(1 for f in file)
    for i in range(1,lines_processed):
       next(product_reader)
    return product_reader
@@ -72,9 +71,9 @@ def add_captions_to_products(products_file, output_file):
     with open(products_file, 'r', newline='') as pfile, \
         open(output_file, 'a', newline='') as outfile:
         product_reader = csv.reader(pfile)
-        product_header = next(product_reader) + ['color'] + ['description'] + ["short_description"]  # Add seller_name to product header
+        product_header = next(product_reader) + ['color'] + ['description'] + ["new_title"]  # Add seller_name to product header
         writer = csv.writer(outfile)
-        # writer.writerow(product_header)
+        writer.writerow(product_header)
 
         product_reader = skip_processed(output_file, product_reader)
         for product_row in product_reader:

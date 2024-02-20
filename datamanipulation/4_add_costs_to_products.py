@@ -9,7 +9,7 @@ def update_product_costs(products_file, output_file):
         writer = csv.writer(outfile)
 
         header = next(reader)
-        header[4] = 'cost'  # Change 'value' header to 'cost'
+        header[4] = 'cost'   # Change 'value' header to 'cost'
         writer.writerow(header)
 
         products = {}  # To store products with their base cost

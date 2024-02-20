@@ -23,12 +23,10 @@ def csv_to_json_list(csv_file):
                 "price": row["cost"],
                 "link": row["image_link"],
                 "seller_name": format_string(row["seller_name"]),
-                "seller_rating": row["seller_rating"],
-                "short_description": format_string(row["short_description"]),
+                "seller_rating": row["rating"],
                 "description":format_string(row["description"]),
                 "color": row["color"],
                 "condition": generate_product_condition(),
-                "text": format_string(row["title"]) + " " + format_string(row["description"]) + " color " + row["color"]
             }
             json_data.append(product)
             count+=1
@@ -42,7 +40,11 @@ def generate_product_condition():
     return condition
 
 if __name__ == "__main__":
-    csv_file = "datamanipulation/final_catalog_with_keywords.csv"  
+    csv_file = "datamanipulation/5_enriched_catalog.csv"  
     json_list = csv_to_json_list(csv_file)
-    with open('datamanipulation/catalog_json.json', 'w') as outfile:
-        outfile.write(json.dumps(json_list))
+    with open('datamanipulation/catalog.json', 'w') as outfile:
+      outfile.write(json.dumps(json_list))
+    with open('datamanipulation/catalog_jsonlines.json', 'w') as outfile:
+        for item in json_list:
+            outfile.write(json.dumps(item))
+            outfile.write("\n")
