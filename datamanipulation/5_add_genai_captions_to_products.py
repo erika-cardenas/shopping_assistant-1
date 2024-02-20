@@ -16,7 +16,7 @@ def generate_caption(image):
   vertexai.init(project="ccai-demo-414406", location="us-central1")
   model = GenerativeModel("gemini-pro-vision")
   response = model.generate_content(
-    [image, """Provide a list of all the following product attributes for the main product in the image in the format {"category":<val>, "color":[<val>,<val>], "model":<val>, "new_title":<val>,  "description":<val>}  The description should be less than 3 sentences. If the product is multicoloured then mention 2-3 of the most prominent colours """],
+    [image, """Provide a list of all the following product attributes for the main product in the image in the format {"category":<val>, "color":[<val>,<val>], "model":<val>, "new_title":<val>,  "description":<val>}  The description should be less than 3 sentences. If the product has multiple dominant colours then mention 2-3 of the most prominent colours """],
     generation_config={
         "max_output_tokens": 2048,
         "temperature": 0.4,
