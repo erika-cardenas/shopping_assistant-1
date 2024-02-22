@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head profile="http://www.w3.org/2005/10/profile">
+
+    <title>Virtual Agent powered by Google Generative AI</title>
+    <style type="text/css">
+        
+    df-messenger {
+      --df-messenger-button-titlebar-color: #00578a;
+      --df-messenger-send-icon: #00578a;
+    }
+    </style>
+
+
+<!--
+<h1 style="color:blue; text-align:center;">Dialogflow CX powered by Google Generative AI</h1>
+<h2 style="color:green; text-align:center;">New York State Department of Motor Vehicles</h2>
+-->
+
+</head>
+
+<img
+src=./webpage.png width="100%" height="100%"/>
+
+<body>
+
+    <link rel="stylesheet" href="https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/themes/df-messenger-default.css">
+    <script src="https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/df-messenger.js"></script>
+    <df-messenger
+      location="us-central1"
+      project-id="retail-vertical-project"
+      agent-id="cee5a831-c4f0-41e9-9b2e-f767b0f4ad2d"
+      language-code="en"
+      max-query-length="-1">
+      <df-messenger-chat-bubble
+       chat-title="merch-store-agent-2">
+      </df-messenger-chat-bubble>
+    </df-messenger>
+    <style>
+      df-messenger {
+        z-index: 999;
+        position: fixed;
+        bottom: 16px;
+        right: 16px;
+      }
+    </style>
+
+</body>
+
+</html>
