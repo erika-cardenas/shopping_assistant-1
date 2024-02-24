@@ -18,6 +18,7 @@ def csv_to_json_list(csv_file):
         for row in reader:
             product = {
                 "id": "id_"+str(count),
+                "product_id": row["id"],
                 "title": format_string(row["title"]),
                 "category": format_string(row["product_type"]),
                 "price": row["cost"],

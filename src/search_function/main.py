@@ -68,6 +68,11 @@ def format_title(text):
   result = re.sub(regex, '', text)  
   return result
 
+def transform_url(url):
+    filename = os.path.basename(url)  # Get the filename part
+    name, ext = os.path.splitext(filename)  # Split into name and extension
+    return name
+
 def format_search_results(data):
 # Iterate through each result
     unique_results = []
@@ -81,6 +86,7 @@ def format_search_results(data):
                 "title": formatted_title,
                 "link": result["link"],
                 "description": result["description"],
+                "product_id":result["product_id"]
                 }            
 
             # Add unique result to the list
@@ -89,23 +95,19 @@ def format_search_results(data):
     return unique_results
 
 
-def format_details(query_title, data):
+def format_details(data):
     details = []
     for d in data["results"]:
         result = d["document"]["structData"]
         formatted_title = format_title(result["title"])
-
-        # Check if title is the same as the query exactly
-        print(formatted_title, " ", format_title(query_title))
-        if formatted_title == format_title(query_title):
-            detail = {
-                "seller_name": result["seller_name"],
-                "seller_rating": float(result["seller_rating"]),
-                "item_price": float(result["price"]),
-                "item_condition": result["condition"],
-            }          
-            details.append(detail)        
-    return details
+        detail = {
+            "seller_name": result["seller_name"],
+            "seller_rating": float(result["seller_rating"]),
+            "item_price": float(result["price"]),
+            "item_condition": result["condition"],
+        }          
+        details.append(detail)        
+    return {"seller_details":details, "title":formatted_title}
 
 
 def extract_results(json_string):
@@ -117,19 +119,6 @@ def extract_results(json_string):
         return new_data # json.dumps(new_data)  # Serialize back to JSON
     else:
         return None  # Or another handling mechanism if "results" not found
-
-def format_products_for_messenger(products):
-    response = {"content": []}
-    for product in products:
-        item = {
-            "image":{
-                "rawUrl": product["link"]
-            },
-            "type": "info",
-            "title":product["title"]
-        }
-        response["content"].append(item)
-    return response
 
 @functions_framework.http
 def http_search_products(request):
@@ -143,18 +132,11 @@ def http_search_products(request):
     return products
 
 @functions_framework.http
-def http_format_products_messenger(request):
-    data = request.get_json()
-    products = format_products_for_messenger(data)
-    return products
-
-@functions_framework.http
 def http_search_details(request):
     request_args = request.args
 
     if "query" in request_args:
         title = request_args.get("query")
-        print(title)
         details = get_details(title)
         return details
     else:
@@ -171,15 +153,19 @@ def get_products(query_string):
 
 
 def get_details(query_string):
-    results = search_dataset(project_id, location, data_store_id, query_string, num_results_approx*3)
+    results = search_dataset(project_id, location, data_store_id, query_string, num_results_approx)
     if results is None:
         return ""
-    formatted_results = format_details(query_string, results)
+    formatted_results = format_details(results)
     final_response = formatted_results 
     return final_response
 
 #### LOCAL TESTING
 if LOCAL=="true":
-    results = get_products("kits")
-    formatted = format_products_for_messenger(results)
-    print(formatted)
+    products = get_products("Google TShirt")
+
+    print(products)
+
+    results = get_details(products[0]["product_id"])
+
+    print(results)
