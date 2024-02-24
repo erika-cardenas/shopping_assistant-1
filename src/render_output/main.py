@@ -20,16 +20,16 @@ from google.api_core.client_options import ClientOptions
 from google.cloud import discoveryengine_v1beta as discoveryengine
 from google.protobuf.json_format import MessageToJson
 
+import requests
 import functions_framework
 
 
 LOCAL = os.getenv("LOCAL", "false")
+SEARCH_URL = os.getenv("SEARCH_URL", "https://us-central1-ccai-demo-414406.cloudfunctions.net/search_products")
 
-
-def format_wb_output(parameters):
-    print("ds_carousel started")   
-    products = parameters['products']
-
+def format_wb_output(products, parameters):
+    print("product formatting started") 
+    parameters["products"] = products  
     if products is not None:
         print(f"products: {products}")
         parameters["formatted_output"] = format_products_for_messenger(products)
@@ -39,20 +39,21 @@ def format_wb_output(parameters):
     return parameters
 
 def format_products_for_messenger(products):
-    response = {"content": []}
+    items = []
     for product in products:
-        if not "link" in product:
-            product["link"] = "https://example.com/none.jpg"
-        if not "title" in product:
-            product["title"] = ""
         item = {
             "image":{
+                "src":{
                 "rawUrl": product["link"]
+                }
             },
             "type": "info",
-            "title":product["title"]
+            "title":product["title"],
+            "subtitle":product["title"],
+            "actionLink": ""
         }
-        response["content"].append(item)
+        items.append(item)
+    response =  {"richContent":[[items]]}
     return response
 
 
@@ -64,18 +65,23 @@ def http_format_products_messenger(request):
     return response_json
 
 def do_your_thing(request_json):    
+    print("incoming request: ", request_json)
     if 'fulfillmentInfo' in request_json and request_json['fulfillmentInfo']:
         if 'tag' in request_json['fulfillmentInfo'] and request_json['fulfillmentInfo']['tag']:
             tag = request_json['fulfillmentInfo']['tag']
     if 'sessionInfo' in request_json and request_json['sessionInfo']:
         parameters = request_json['sessionInfo']['parameters']
+
+    query_string = parameters["query"]
+    query_params = {"query": query_string}
+    search_response = requests.get(SEARCH_URL, params=query_params)
+    search_response_json = search_response.json()
     
-    updated_parameters = format_wb_output(parameters)
+    updated_parameters = format_wb_output(search_response_json, parameters=parameters)
     
     session_info = {'parameters': updated_parameters}
     response = {'sessionInfo': session_info}
-    response_json = json.dumps(response)
-    return response_json
+    return response
 
 ### LOCAL TESTING
 if LOCAL=="true":
@@ -83,8 +89,12 @@ if LOCAL=="true":
             'intentInfo': {'lastMatchedIntent': 'projects/retail-vertical-project/locations/us-central1/agents/cee5a831-c4f0-41e9-9b2e-f767b0f4ad2d/intents/00000000-0000-0000-0000-000000000000', 
                            'displayName': 'Default Welcome Intent', 'confidence': 1.0}, 
                            'pageInfo': {'currentPage': 'projects/retail-vertical-project/locations/us-central1/agents/cee5a831-c4f0-41e9-9b2e-f767b0f4ad2d/flows/a5e97c7f-3d0f-4f31-a53d-7910c95de191/pages/START_PAGE', 'displayName': 'Start Page'}, 
-                           'sessionInfo': {'session': 'projects/retail-vertical-project/locations/us-central1/agents/cee5a831-c4f0-41e9-9b2e-f767b0f4ad2d/sessions/dd01fd-d38-633-b58-1009e5185', 
-                                           'parameters': {'products': [{'description': 'These socks feature the Google logo on the side and a cityscape of Seattle on the front', 'link': 'https://shop.googlemerchandisestore.com/store/20160512512/assets/items/images/GGOEDAXQ225310.jpg', 'title': 'WA Classic Cotton Crew Socks'}, 
+                           'sessionInfo': 
+                           {'session': 'projects/retail-vertical-project/locations/us-central1/agents/cee5a831-c4f0-41e9-9b2e-f767b0f4ad2d/sessions/dd01fd-d38-633-b58-1009e5185', 
+                            'parameters':
+                                           {
+                                               'query':"red socks",
+                                               'products': [{'description': 'These socks feature the Google logo on the side and a cityscape of Seattle on the front', 'link': 'https://shop.googlemerchandisestore.com/store/20160512512/assets/items/images/GGOEDAXQ225310.jpg', 'title': 'WA Classic Cotton Crew Socks'}, 
                                                                        {'description': 'This pack of three socks from Happy Socks features a variety of colorful and fun designs including dinosaurs polka dots and stripes', 'link': 'https://shop.googlemerchandisestore.com/store/20160512512/assets/items/images/GGOEGAXA185899.jpg', 'title': 'Google Crew Socks  3 pack'}, 
                                                                        {'description': 'These Google socks are made from a soft and comfortable cotton blend They feature a black background with a colorful polka dot pattern and the Google logo on the top Theyre perfect for everyday wear', 'link': 'https://shop.googlemerchandisestore.com/store/2016051'}]}}, 
                                                                         'fulfillmentInfo': {'tag': 'messenger'}, 
