@@ -16,7 +16,7 @@ def generate_caption(image):
   vertexai.init(project="ccai-demo-414406", location="us-central1")
   model = GenerativeModel("gemini-pro-vision")
   response = model.generate_content(
-    [image, """Provide a list of all the following product attributes for the main product in the image in the format {"category":<val>, "color":[<val>,<val>], "model":<val>, "new_title":<val>,  "description":<val>}  The description should be less than 3 sentences. If the product has multiple dominant colours then mention 2-3 of the most prominent colours """],
+    [image, """Provide a list of all the following product attributes for the main product in the image in the format {"categories":[<val>, <val>], "color":[<val>,<val>], "model":<val>, "new_title":<val>,"gender":<gender>, "description":<val>, "google_brand":<val>  }  The description should be less than 3 sentences. Mention 1-3 of the most dominant colours of the product. The gender has to be male, female or unisex. """],
     generation_config={
         "max_output_tokens": 2048,
         "temperature": 0.4,
@@ -96,6 +96,6 @@ def generate_product_condition():
     return condition
 
 if __name__ == "__main__":
-    products_file = 'datamanipulation2/4_products_with_costs.csv'
-    output_file = 'datamanipulation2/5_enriched_catalog.csv'
+    products_file = 'datamanipulation/4_products_with_costs.csv'
+    output_file = 'datamanipulation/5_enriched_catalog_v2.csv'
     add_captions_to_products(products_file, output_file)

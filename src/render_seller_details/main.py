@@ -80,7 +80,7 @@ def do_your_thing(request_json):
     search_response = requests.get(DETAILS_SEARCH_URL, params=query_params)
     search_response_json = search_response.json()
     
-    response = generate_webhook_response(search_response_json, search_response_json)
+    response = generate_webhook_response(search_response_json)
     return response
 
 ### LOCAL TESTING
