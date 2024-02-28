@@ -16,7 +16,7 @@ def generate_caption(image):
   vertexai.init(project="ccai-demo-414406", location="us-central1")
   model = GenerativeModel("gemini-pro-vision")
   response = model.generate_content(
-    [image, """Provide a list of all the following product attributes for the main product in the image in the format {"categories":[<val>, <val>], "color":[<val>,<val>], "model":<val>, "new_title":<val>,"gender":<gender>, "description":<val>, "google_brand":<val>  }  The description should be less than 3 sentences. Mention 1-3 of the most dominant colours of the product. The gender has to be male, female or unisex. """],
+    [image, """Provide a list of all the following product attributes for the main product in the image in the format {"categories":[<val>, <val>], "color":[<val>,<val>], "model":<val>, "new_title":<val>, "description":<val>, "gender":<gender>, "google_brand":<val>  }  The description should be less than 3 sentences. Mention 1-3 of the most dominant colours of the product. The gender has to be men, women or unisex. The google brand can be Google, Youtube, Android, Google Cloud, etc """],
     generation_config={
         "max_output_tokens": 2048,
         "temperature": 0.4,
@@ -71,7 +71,7 @@ def add_captions_to_products(products_file, output_file):
     with open(products_file, 'r', newline='') as pfile, \
         open(output_file, 'a', newline='') as outfile:
         product_reader = csv.reader(pfile)
-        product_header = next(product_reader) + ['color'] + ['description'] + ["new_title"]  # Add seller_name to product header
+        product_header = next(product_reader) + ['color'] + ["description"] +  ['new_title']  + ['gender'] + ['google_brand']  # Add seller_name to product header
         writer = csv.writer(outfile)
         writer.writerow(product_header)
 
@@ -82,8 +82,8 @@ def add_captions_to_products(products_file, output_file):
               caption = caption_image(link=link)
               cleaned = clean_string(caption)
               new_attributes = json.loads(cleaned)
-              product_row[2] = new_attributes["category"]
-              writer.writerow(product_row + [new_attributes["color"]] + [new_attributes["description"]] + [new_attributes["new_title"]])
+              product_row[2] = new_attributes["categories"]
+              writer.writerow(product_row + [new_attributes["color"]] + [new_attributes["description"]] + [new_attributes["new_title"]]  + [new_attributes["gender"]]  + [new_attributes["google_brand"]])
             except Exception as e:
                print("issue with ", product_row)
                print(e)

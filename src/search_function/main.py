@@ -162,10 +162,10 @@ def get_details(query_string):
 
 #### LOCAL TESTING
 if LOCAL=="true":
-    products = get_products("Google TShirt")
+    products = get_products("google cloud magnets")
 
     print(products)
 
-    results = get_details(products[0]["product_id"])
+    results = get_details("GGOEYOAA101499")
 
     print(results)
