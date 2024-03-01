@@ -16,14 +16,17 @@ def csv_to_json_list(csv_file):
     with open(csv_file, 'r') as file:
         reader = csv.DictReader(file)
         for row in reader:
+        
             product = {
                 "id": "id_"+str(count),
                 "product_id": row["id"],
                 "title": format_string(row["title"]),
-                "category": format_string(row["product_type"]),
+                "category": row["product_type"],
                 "link": row["image_link"],
                 "description":format_string(row["description"]),
                 "color": row["color"],
+                "gender": row["gender"].lower(),
+                "brand": row["google_brand"].lower()
             }
             json_data.append(product)
             count+=1

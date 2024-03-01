@@ -23,19 +23,23 @@ def add_sellers_to_products(sellers_file, products_file, output_file):
                 condition, price = add_price_and_condition(product_row) 
                 writer.writerow([product_row[0]] + [product_row[1]]+ [seller[1]] + [seller[3]] + [str(price)] + [condition])
 
+new_cost_multipliers = [-10, -5, 0, 5, 10, 15, 20, 30]
+gan_cost_multipliers = [-30, -25, -15, -10, -5, 0, 10, 5]
+used_cost_multipliers = [-50, -45, -40, -30, -10, 0, 5, -55]
+
 def add_price_and_condition(product_row):
     if product_row[4] == "":
         product_row[4] = 10
     base_cost = float(product_row[4])
     condition = generate_product_condition()
     if condition == "new":
-        cost_variation = random.randint(-10, 10)
+        cost_variation = new_cost_multipliers[random.randint(0, 7)]
     if condition == "good as new":
-        cost_variation = random.randint(-15, 5)
+        cost_variation = gan_cost_multipliers[random.randint(0, 7)]
     if condition == "used":
-        cost_variation = random.randint(-20, 0)
-
-    final_cost = max(3, base_cost + cost_variation)  # Ensure cost remains in range
+        cost_variation = used_cost_multipliers[random.randint(0, 7)]
+    new_cost = round(base_cost + (cost_variation* base_cost/100),2)
+    final_cost = max(0.5, new_cost ) # Ensure cost remains in range
     return condition, final_cost
 
 def generate_product_condition():

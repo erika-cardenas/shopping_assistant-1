@@ -24,15 +24,16 @@ import functions_framework
 
 project_id = os.getenv("PROJECT_ID")
 location = os.getenv("LOCATION")                    
-data_store_id = os.getenv("SEARCH_DATA_STORE_ID")
-num_results_approx = os.getenv("EXPECTED_RESULTS", 5)
+data_store_id = os.getenv("CATALOG")
+num_results_approx = os.getenv("EXPECTED_RESULTS", 10)
 LOCAL = os.getenv("LOCAL", "false")
 
 def search_dataset(
     project_id: str,
     location: str,
     data_store_id: str,
-    search_query: str,
+    query: str,
+    filters: str,
     page_size: int,
 ) -> List[discoveryengine.SearchResponse]:
    client_options = (
@@ -47,13 +48,15 @@ def search_dataset(
         data_store=data_store_id,
         serving_config="default_config",
     )
+   
    request = discoveryengine.SearchRequest(
         serving_config=serving_config,
-        query=search_query,
+        query=query,
         page_size=page_size,
         query_expansion_spec=discoveryengine.SearchRequest.QueryExpansionSpec(
             condition=discoveryengine.SearchRequest.QueryExpansionSpec.Condition.AUTO,
         ),
+        filter= filters,
         spell_correction_spec=discoveryengine.SearchRequest.SpellCorrectionSpec(
             mode=discoveryengine.SearchRequest.SpellCorrectionSpec.Mode.AUTO
         ),
@@ -68,51 +71,30 @@ def format_title(text):
   result = re.sub(regex, '', text)  
   return result
 
-def transform_url(url):
-    filename = os.path.basename(url)  # Get the filename part
-    name, ext = os.path.splitext(filename)  # Split into name and extension
-    return name
-
 def format_search_results(data):
-# Iterate through each result
-    unique_results = []
+    results = []
     for d in data["results"]:
-        result = d["document"]["structData"]
-        formatted_title = format_title(result["title"])
-        # Check if title already exists in unique_results
-        if not any(existing_result["title"] == formatted_title for existing_result in unique_results):
-            # Extract relevant data for unique result
-            unique_result = {
-                "title": formatted_title,
-                "link": result["link"],
-                "description": result["description"],
-                "product_id":result["product_id"]
-                }            
+        document = d["document"]["structData"]
+        formatted_title = format_title(document["title"])
+        if "description" in document:
+                description =  document["description"]
+        else:
+            description = ""
+        
+        result = {
+            "title": formatted_title,
+            "link": document["link"],
+            "product_id":document["product_id"],
+            "color": document["color"],
+            "gender": document["gender"],
+            "description": description
+            }            
+        results.append(result)
 
-            # Add unique result to the list
-            unique_results.append(unique_result)
-
-    return unique_results
-
-
-def format_details(data):
-    details = []
-    for d in data["results"]:
-        result = d["document"]["structData"]
-        formatted_title = format_title(result["title"])
-        detail = {
-            "seller_name": result["seller_name"],
-            "seller_rating": float(result["seller_rating"]),
-            "item_price": float(result["price"]),
-            "item_condition": result["condition"],
-        }          
-        details.append(detail)        
-    return {"seller_details":details, "title":formatted_title}
-
+    return results
 
 def extract_results(json_string):
     data = json.loads(json_string)  # Parse the JSON string
-
     # Assuming "results" is a top-level field
     if "results" in data:
         new_data = {"results": data["results"]} 
@@ -123,49 +105,45 @@ def extract_results(json_string):
 @functions_framework.http
 def http_catalog(request):
     request_args = request.args
-
-    if "query" in request_args:
-        query = request_args.get("query")
-        if query=="":
-            query = "merch"
-    products = get_products(query)
+    brand = ""
+    gender = "Unisex"
+    color = ""
+    if "product" in request_args:
+        product = request_args.get("product")
+    else:
+        return []
+    if "gender" in request_args:
+        gender = request_args.get("gender")
+    if "brand" in request_args:
+        brand = request_args.get("brand")
+    if "color" in request_args:
+        color = request_args.get("color") 
+    products = search_catalog(product, gender, brand, color)
     return products
 
-@functions_framework.http
-def http_search_details(request):
-    request_args = request.args
-
-    if "query" in request_args:
-        title = request_args.get("query")
-        details = get_details(title)
-        return details
-    else:
-        return {[]}
+def build_filter(filter, value):
+    if value:  
+        return f"{filter}:ANY(\"{value}\", \"{value.lower()}\", \"{value.capitalize()}\")"
+    return "" 
 
 
 #### WRAPPERS
-def get_products(query_string):
-    results = search_dataset(project_id, location, data_store_id, query_string, num_results_approx*3)
+def search_catalog(product, gender="Unisex", brand="", color =""):
+
+    filter_brand = build_filter("brand", brand)
+    filter_gender = build_filter("gender", gender)
+    filter_color = build_filter("color", color)
+
+    filters = " AND ".join(filter for filter in [filter_brand, filter_gender, filter_color] if filter)
+    
+    results = search_dataset(project_id=project_id, location=location, data_store_id=data_store_id, query=product, filters=filters, page_size = 10)
     if results is None:
         return ""
     formatted_results = format_search_results(results)
     return formatted_results
 
 
-def get_details(query_string):
-    results = search_dataset(project_id, location, data_store_id, query_string, num_results_approx)
-    if results is None:
-        return ""
-    formatted_results = format_details(results)
-    final_response = formatted_results 
-    return final_response
-
 #### LOCAL TESTING
 if LOCAL=="true":
-    products = get_products("google cloud magnets")
-
+    products = search_catalog("shirts", "women")
     print(products)
-
-    results = get_details("GGOEYOAA101499")
-
-    print(results)
