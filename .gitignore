@@ -41,3 +41,5 @@ terraform.rc
 
 __pycache__
 *_venv/*
+
+product.jpg

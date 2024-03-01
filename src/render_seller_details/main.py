@@ -98,7 +98,7 @@ if LOCAL=="true":
                            {'session': 'projects/retail-vertical-project/locations/us-central1/agents/cee5a831-c4f0-41e9-9b2e-f767b0f4ad2d/sessions/dd01fd-d38-633-b58-1009e5185', 
                             'parameters':
                                            {
-                                               'selected_product':"GGOEGAEJ028915",'max_price': "1000", "min_rating":"3", "condition":"new",
+                                               'selected_product':"GGOEGAEJ028915",'max_price': "1000", "min_rating":"2", "condition":"new",
                                                'products': [{'description': 'These socks feature the Google logo on the side and a cityscape of Seattle on the front', 'link': 'https://shop.googlemerchandisestore.com/store/20160512512/assets/items/images/GGOEDAXQ225310.jpg', 'title': 'WA Classic Cotton Crew Socks'}, 
                                                                        {'description': 'This pack of three socks from Happy Socks features a variety of colorful and fun designs including dinosaurs polka dots and stripes', 'link': 'https://shop.googlemerchandisestore.com/store/20160512512/assets/items/images/GGOEGAXA185899.jpg', 'title': 'Google Crew Socks  3 pack'}, 
                                                                        {'description': 'These Google socks are made from a soft and comfortable cotton blend They feature a black background with a colorful polka dot pattern and the Google logo on the top Theyre perfect for everyday wear', 'link': 'https://shop.googlemerchandisestore.com/store/2016051'}]}}, 
