@@ -14,7 +14,7 @@
 #
 
 # [START genappbuilder_search]
-import os, json, re, ast
+import os, json, re
 from typing import  List
 from google.api_core.client_options import ClientOptions
 from google.cloud import discoveryengine_v1beta as discoveryengine
@@ -33,7 +33,6 @@ def search_dataset(
     location: str,
     data_store_id: str,
     query: str,
-    filters: str,
     page_size: int,
 ) -> List[discoveryengine.SearchResponse]:
    client_options = (
@@ -53,13 +52,12 @@ def search_dataset(
         serving_config=serving_config,
         query=query,
         page_size=page_size,
-        query_expansion_spec=discoveryengine.SearchRequest.QueryExpansionSpec(
-            condition=discoveryengine.SearchRequest.QueryExpansionSpec.Condition.AUTO,
-        ),
-        filter= filters,
-        spell_correction_spec=discoveryengine.SearchRequest.SpellCorrectionSpec(
-            mode=discoveryengine.SearchRequest.SpellCorrectionSpec.Mode.AUTO
-        ),
+        # query_expansion_spec=discoveryengine.SearchRequest.QueryExpansionSpec(
+        #     condition=discoveryengine.SearchRequest.QueryExpansionSpec.Condition.AUTO,
+        # ),
+        # spell_correction_spec=discoveryengine.SearchRequest.SpellCorrectionSpec(
+        #     mode=discoveryengine.SearchRequest.SpellCorrectionSpec.Mode.N
+        # ),
     )
    response = client.search(request)
    json_response = extract_results(MessageToJson(response._pb))
@@ -131,8 +129,7 @@ def build_filter(filter, value):
 
 #### WRAPPERS
 def search_inventory(product_id, max_price, min_rating, condition):
-    filter_product_id = build_filter("product_id", product_id)
-    results = search_dataset(filters= filter_product_id, project_id=project_id, location=location, data_store_id=data_store_id, query=product_id, page_size = 50)
+    results = search_dataset(project_id=project_id, location=location, data_store_id=data_store_id, query=product_id, page_size = 10)
     if results is None:
         return ""
     formatted_results = format_search_results(results, max_price=max_price, min_rating=min_rating, condition=condition)
@@ -141,5 +138,5 @@ def search_inventory(product_id, max_price, min_rating, condition):
 
 #### LOCAL TESTING
 if LOCAL=="true":
-    result = search_inventory("GGOEGCBA207399", 10000, 1, "")
+    result = search_inventory("GGPIGAAB100413", 10000, 1, "")
     print(result)

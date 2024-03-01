@@ -43,9 +43,9 @@ def format_products(request_json):
         parameters = request_json['sessionInfo']['parameters']
 
     query_params = {"product": parameters["product"]}
-    if "brand" in parameters:
+    if "brand" in parameters and parameters["brand"] != "":
         query_params["brand"] = parameters["brand"]
-    if "gender" in parameters:
+    if "gender" in parameters and parameters["gender"] != "":
         query_params["gender"] = parameters["gender"]
     # if "color" in parameters:
     #     query_params["color"] = parameters["color"]

@@ -11,4 +11,4 @@ gcloud functions deploy product_check \
   --trigger-http \
   --allow-unauthenticated \
   --run-service-account=$FUNCTIONS_SERVICE_ACCOUNT \
-  --set-env-vars=PROJECT_ID=$PROJECT_ID,LOCATION=$LOCATION,INVENTORY=$INVENTORY
+  --set-env-vars=PROJECT_ID=$PROJECT_ID,LOCATION=$LOCATION,CATALOG=$CATALOG

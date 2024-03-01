@@ -40,6 +40,6 @@ override.tf.json
 terraform.rc
 
 __pycache__
-*_venv/*
+*/catalogvenv/*
 
 product.jpg

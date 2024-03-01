@@ -11,4 +11,4 @@ gcloud functions deploy format_sellers_v2 \
   --trigger-http \
   --allow-unauthenticated \
   --run-service-account=$FUNCTIONS_SERVICE_ACCOUNT \
-  --set-env-vars=PROJECT_ID=$PROJECT_ID,DETAILS_SEARCH_URL=$DETAILS_SEARCH_URL
+  --set-env-vars=PROJECT_ID=$PROJECT_ID,DETAILS_SEARCH_URL=$DETAILS_SEARCH_URL,LOCAL=false

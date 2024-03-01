@@ -25,7 +25,7 @@ import functions_framework
 project_id = os.getenv("PROJECT_ID")
 location = os.getenv("LOCATION")                    
 data_store_id = os.getenv("CATALOG")
-num_results_approx = os.getenv("EXPECTED_RESULTS", 10)
+num_results_approx = os.getenv("EXPECTED_RESULTS", 5)
 LOCAL = os.getenv("LOCAL", "false")
 
 def search_dataset(
@@ -87,7 +87,8 @@ def format_search_results(data):
             "product_id":document["product_id"],
             "color": document["color"],
             "gender": document["gender"],
-            "description": description
+            "description": description, 
+            "brand": document["brand"]
             }            
         results.append(result)
 
@@ -118,7 +119,7 @@ def http_catalog(request):
         brand = request_args.get("brand")
     if "color" in request_args:
         color = request_args.get("color") 
-    products = search_catalog(product, gender, brand, color)
+    products = search_catalog(product, gender, brand, color, max_results=num_results_approx)
     return products
 
 @functions_framework.http
@@ -140,7 +141,7 @@ def build_filter(filter, value):
 
 
 #### WRAPPERS
-def search_catalog(product, gender="", brand="", color =""):
+def search_catalog(product, gender="", brand="", color ="", max_results=10):
 
     filter_brand = build_filter("brand", brand)
     filter_gender = build_filter("gender", gender)
@@ -148,32 +149,47 @@ def search_catalog(product, gender="", brand="", color =""):
 
     filters = " AND ".join(filter for filter in [filter_brand, filter_gender, filter_color] if filter)
     
-    results = search_dataset(project_id=project_id, location=location, data_store_id=data_store_id, query=product, filters=filters, page_size = 50)
+    results = search_dataset(project_id=project_id, location=location, data_store_id=data_store_id, query=product, filters=filters, page_size = max_results)
     if results is None:
         return ""
     formatted_results = format_search_results(results)
     return formatted_results
 
+def find_item(json_data, target_name):
+    items = json_data.get("items", [])  # Get the "items" array or an empty list if it doesn't exist
+    for item in items:
+        if item.get("name") == target_name:
+            return item
+    return None  # Item not found
 
 def check_details(product):
-    products = search_catalog(product)
+    products = search_catalog(product, max_results=50)
     if len(products) < 1:
-        return {"inventory": False, "gendered": False, "found": 0, "colors":{}}
+        return {"inventory": False, "gendered": False, "found": 0, "colors":{}, "brands": {}}
     colors = {}
+    brands = {}
     count_unisex = 0
     for p in products:
         color = ast.literal_eval(p['color'])
+        b = p["brand"].lower()
         for c in color:
             if c.lower() not in colors:
-                colors[c.lower()] = 1
+               colors[c.lower()] = 1
             else:
                 colors[c.lower()] += 1
+        if b != "":
+            if b not in brands:
+                brands[b] = 1
+            else:
+                brands[b] += 1
+
+        
         if p["gender"] == "Unisex":
             count_unisex+=1
     if count_unisex > 0.75*len(products):
-        return {"inventory": True, "gendered": False, "found": len(products), "colors": colors}
+        return {"inventory": True, "gendered": False, "found": len(products), "colors": colors, "brands": brands}
     else:
-        return {"inventory": True, "gendered": True, "found": len(products), "colors": colors}
+        return {"inventory": True, "gendered": True, "found": len(products), "colors": colors, "brands": brands}
 
 #### LOCAL TESTING
 if LOCAL=="true":
