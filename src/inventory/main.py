@@ -14,7 +14,7 @@
 #
 
 # [START genappbuilder_search]
-import os, string
+import os, json, re, ast
 from typing import  List
 from google.api_core.client_options import ClientOptions
 from google.cloud import discoveryengine_v1beta as discoveryengine
@@ -22,65 +22,124 @@ from google.protobuf.json_format import MessageToJson
 
 import functions_framework
 
+project_id = os.getenv("PROJECT_ID")
+location = os.getenv("LOCATION")                    
+data_store_id = os.getenv("INVENTORY")
+num_results_approx = os.getenv("EXPECTED_RESULTS", 10)
 LOCAL = os.getenv("LOCAL", "false")
 
-inventory = ["pens","shirts", "tees", "tshirts", "sweaters", "hoodies", \
-             "sweatshirts", "socks", "caps", "hats", "journals", "glasses", "shades", \
-                "notebooks", "keychains" , "stickers", "magnets", "bags", "backpacks", "bottles" \
-                    "blankets, mugs, cups, plushies, plushy, toys" ]
+def search_dataset(
+    project_id: str,
+    location: str,
+    data_store_id: str,
+    query: str,
+    filters: str,
+    page_size: int,
+) -> List[discoveryengine.SearchResponse]:
+   client_options = (
+        ClientOptions(api_endpoint=f"{location}-discoveryengine.googleapis.com")
+        if location != "global"
+        else None
+    )
+   client = discoveryengine.SearchServiceClient(client_options=client_options)
+   serving_config = client.serving_config_path(
+        project=project_id,
+        location=location,
+        data_store=data_store_id,
+        serving_config="default_config",
+    )
+   
+   request = discoveryengine.SearchRequest(
+        serving_config=serving_config,
+        query=query,
+        page_size=page_size,
+        query_expansion_spec=discoveryengine.SearchRequest.QueryExpansionSpec(
+            condition=discoveryengine.SearchRequest.QueryExpansionSpec.Condition.AUTO,
+        ),
+        filter= filters,
+        spell_correction_spec=discoveryengine.SearchRequest.SpellCorrectionSpec(
+            mode=discoveryengine.SearchRequest.SpellCorrectionSpec.Mode.AUTO
+        ),
+    )
+   response = client.search(request)
+   json_response = extract_results(MessageToJson(response._pb))
+   return json_response
 
-inventory_has_gender_specific_options = ["shirts", "tees", "tshirts", "sweaters", "hoodies", \
-             "sweatshirts"]
+def format_title(text):
+  # Regular expression pattern to match letters and numbers (alphanumeric)
+  regex = r"[^a-zA-Z0-9\s]"  
+  result = re.sub(regex, '', text)  
+  return result
 
-def format_string(text):
-    allowed_chars = set(string.ascii_lowercase + " ")  # Set of allowed characters (lowercase letters)
-    result = ''.join(char for char in text.lower() if char in allowed_chars)
-    return result
+def format_search_results(data, max_price, min_rating, condition):
+    results = []
+    for d in data["results"]:
+        document = d["document"]["structData"]
+        formatted_title = format_title(document["title"])       
+        result = {
+            "title": formatted_title,
+            "seller": document["seller"],
+            "seller_rating": float(document["seller_rating"]),
+            "price":float(document["price"]),
+            "condition": document["condition"],
+            "product_id": document["product_id"],
+            }  
+        if result["price"] < float(max_price) and result["seller_rating"]  > float(min_rating): 
+            if condition == "":        
+                results.append(result)
+            elif result["condition"].lower() == condition.lower():
+                results.append(result)
 
+    return results
 
-def is_part_of_word(word):
-    for list_word in inventory:
-        if list_word in word:
-            return True
-    return False
-
-def is_gendered(word):
-    for list_word in inventory_has_gender_specific_options:
-        if list_word in word:
-            return True
-    return False
-
-
-def get_details(query):
-    item = format_string(query)
-    result = {"item": "false", "gendered": "false", "name": item }
-    if  is_part_of_word(item):
-        result["item"] = "true"
-        result ["name"] = item
+def extract_results(json_string):
+    data = json.loads(json_string)  # Parse the JSON string
+    # Assuming "results" is a top-level field
+    if "results" in data:
+        new_data = {"results": data["results"]} 
+        return new_data # json.dumps(new_data)  # Serialize back to JSON
     else:
-        return result
-    if is_gendered(item):
-        result["gendered"] = "true"
-    return result
-
+        return None  # Or another handling mechanism if "results" not found
 
 @functions_framework.http
-def http_check_inventory(request):
+def http_inventory(request):
     request_args = request.args
+    max_price = 1000000
+    min_rating = 1
+    condition = ""
+    if "product_id" in request_args:
+        product_id = request_args.get("product_id")
+    else:
+        return []
+    if "max_price" in request_args:
+        max_price = request_args.get("max_price")
+        print("max_price", max_price)
+    if "min_rating" in request_args:
+        min_rating = request_args.get("min_rating")
+        print("min_rating", min_rating)
+    if "condition" in request_args:
+        condition = request_args.get("condition") 
+    
+    products = search_inventory(product_id, min_rating= min_rating, max_price=max_price, condition=condition)
+    return products
 
-    if "query" in request_args:
-        title = request_args.get("query")
-        result = get_details(title)
-        return result
-    return {}
+def build_filter(filter, value):
+    if value:  
+        return f"{filter}:ANY(\"{value}\", \"{value.lower()}\", \"{value.capitalize()}\")"
+    return "" 
 
-@functions_framework.http
-def http_get_inventory(request):
-    return inventory
+
+#### WRAPPERS
+def search_inventory(product_id, max_price, min_rating, condition):
+    filter_product_id = build_filter("product_id", product_id)
+    results = search_dataset(filters= filter_product_id, project_id=project_id, location=location, data_store_id=data_store_id, query=product_id, page_size = 50)
+    if results is None:
+        return ""
+    formatted_results = format_search_results(results, max_price=max_price, min_rating=min_rating, condition=condition)
+    return formatted_results
+
 
 #### LOCAL TESTING
 if LOCAL=="true":
-
-    results = get_details("android t-shirts")
-    i = http_get_inventory("")
-    print(results)
+    result = search_inventory("GGOEGCBA207399", 10000, 1, "")
+    print(result)

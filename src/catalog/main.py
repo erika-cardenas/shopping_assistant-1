@@ -14,7 +14,7 @@
 #
 
 # [START genappbuilder_search]
-import os, json, re
+import os, json, re, ast
 from typing import  List
 from google.api_core.client_options import ClientOptions
 from google.cloud import discoveryengine_v1beta as discoveryengine
@@ -121,6 +121,18 @@ def http_catalog(request):
     products = search_catalog(product, gender, brand, color)
     return products
 
+@functions_framework.http
+def http_product_check(request):
+    request_args = request.args
+    if "product" in request_args:
+        product = request_args.get("product")
+    else:
+        return {"inventory": False, "gendered": False}
+    
+    return check_details(product=product)
+
+
+
 def build_filter(filter, value):
     if value:  
         return f"{filter}:ANY(\"{value}\", \"{value.lower()}\", \"{value.capitalize()}\")"
@@ -128,7 +140,7 @@ def build_filter(filter, value):
 
 
 #### WRAPPERS
-def search_catalog(product, gender="Unisex", brand="", color =""):
+def search_catalog(product, gender="", brand="", color =""):
 
     filter_brand = build_filter("brand", brand)
     filter_gender = build_filter("gender", gender)
@@ -136,14 +148,36 @@ def search_catalog(product, gender="Unisex", brand="", color =""):
 
     filters = " AND ".join(filter for filter in [filter_brand, filter_gender, filter_color] if filter)
     
-    results = search_dataset(project_id=project_id, location=location, data_store_id=data_store_id, query=product, filters=filters, page_size = 10)
+    results = search_dataset(project_id=project_id, location=location, data_store_id=data_store_id, query=product, filters=filters, page_size = 50)
     if results is None:
         return ""
     formatted_results = format_search_results(results)
     return formatted_results
 
 
+def check_details(product):
+    products = search_catalog(product)
+    if len(products) < 1:
+        return {"inventory": False, "gendered": False, "found": 0, "colors":{}}
+    colors = {}
+    count_unisex = 0
+    for p in products:
+        color = ast.literal_eval(p['color'])
+        for c in color:
+            if c.lower() not in colors:
+                colors[c.lower()] = 1
+            else:
+                colors[c.lower()] += 1
+        if p["gender"] == "Unisex":
+            count_unisex+=1
+    if count_unisex > 0.75*len(products):
+        return {"inventory": True, "gendered": False, "found": len(products), "colors": colors}
+    else:
+        return {"inventory": True, "gendered": True, "found": len(products), "colors": colors}
+
 #### LOCAL TESTING
 if LOCAL=="true":
-    products = search_catalog("shirts", "women")
+    products = search_catalog("socks", brand="youtube")
     print(products)
+    result = check_details("magnets")
+    print(result)

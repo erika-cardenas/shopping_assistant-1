@@ -7,7 +7,7 @@ gcloud functions deploy catalog \
   --runtime=python310 \
   --source=./src/catalog \
   --entry-point=http_catalog\
-  --min-instances=1\
+  --min-instances=0\
   --trigger-http \
   --allow-unauthenticated \
   --run-service-account=$FUNCTIONS_SERVICE_ACCOUNT \

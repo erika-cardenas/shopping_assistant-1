@@ -16,7 +16,7 @@ def generate_caption(image, title):
   vertexai.init(project="ccai-demo-414406", location="us-central1")
   model = GenerativeModel("gemini-pro-vision")
   response = model.generate_content(
-    [image, title, """Provide a list of all the following product attributes for the main product in the image in the format {"categories":[<val>, <val>], "color":[<val>,<val>], "model":<val>, "new_title":<val>, "description":<val>, "gender":<gender>, "google_brand":<val>}  The description should be less than 3 sentences. Mention 1-3 of the dominant colours of the product. The gender has to be men, women or unisex. The google brand can be Google, Youtube, Android, Google Cloud, etc. The new_title should be derived from the input text, but should not contain any size,, colour or gender information"""],
+    [image, title, """Provide a list of all the following product attributes for the main product in the image in the format {"categories":[<val>, <val>], "color":[<val>,<val>], "product_type":<val>, "new_title":<val>, "description":<val>, "gender":<gender>, "google_brand":<val>}  The description should be less than 3 sentences. Mention 1-3 of the dominant colours of the product. The gender has to be men, women or unisex. The google brand can be Google, Youtube, Android, Google Cloud, etc. The new_title should be derived from the input text, but should not contain any size,, colour or gender information"""],
     generation_config={
         "max_output_tokens": 2048,
         "temperature": 0.4,
@@ -80,7 +80,7 @@ def add_captions_to_products(products_file, output_file):
                 caption = caption_image(link=link, title=title)
                 cleaned = clean_string(caption)
                 new_attributes = json.loads(cleaned)
-                product_row[2] = new_attributes["categories"]
+                product_row[2] = new_attributes["product_type"]
                 product_row[1] = new_attributes["new_title"]
                 writer.writerow(product_row + [new_attributes["color"]] + [new_attributes["description"]] + [new_attributes["gender"]]  + [new_attributes["google_brand"]])
             except Exception as e:
@@ -89,6 +89,6 @@ def add_captions_to_products(products_file, output_file):
                pass
         
 if __name__ == "__main__":
-    products_file = 'datamanipulation/2_removed_unnecessary_columns.csv'
-    output_file = 'datamanipulation/3_enriched_catalog.csv'
+    products_file = 'datamanipulation/data/2_removed_unnecessary_columns.csv'
+    output_file = 'datamanipulation/data/3_enriched_catalog.csv'
     add_captions_to_products(products_file, output_file)
