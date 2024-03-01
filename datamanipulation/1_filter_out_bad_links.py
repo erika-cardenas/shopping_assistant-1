@@ -9,7 +9,7 @@ def check_link(url):
         return False  # Handle connection errors
 
 def main():
-    with open('input.csv', 'r', newline='') as infile, open('output_stage1.csv', 'w', newline='') as outfile:
+    with open('input.csv', 'r', newline='') as infile, open('1_removed_broken_links.csv', 'w', newline='') as outfile:
         reader = csv.reader(infile)
         writer = csv.writer(outfile)
 
