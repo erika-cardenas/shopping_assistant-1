@@ -58,21 +58,23 @@ If you have this enabled on your project, let's get started.
  #### Create Vertex Search App and Dataset
 
  1. Create a search application in Vertex search.
- Follow the steps [here](https://cloud.google.com/generative-ai-app-builder/docs/create-engine-es#genappbuilder_create_app-console). When creating the datastore, select the bucket we created in the previous step and select *JSON for structured data with metadata (Preview)* as the type of data you are importing.
+ Follow the steps [here](https://cloud.google.com/generative-ai-app-builder/docs/create-engine-es#genappbuilder_create_app-console). When creating the datastore, select the bucket we created in the previous step and select *JSON for structured data with metadata (Preview)* as the type of data you are importing. At the end of this step, you should have a *Vertex Search App* and a connected *datastore*. 
 
-<img src="images/importing_data.png" alt="Importing data" width="800"/>
 
- At the end of this step, you should have a *Vertex Search App* and a connected *datastore*. Note the datastore's id by navigating to the *data* section of the app and looking for the datastore id.
+  <img src="images/importing_data.png" alt="Importing data" width="800"/>
 
-<img src="images/datastore_id.jpg" alt="Datastore id" width="600"/>
+ 
+ 2. Note down the datastore's id by navigating to the *data* section of the app and looking for the datastore id.
 
-Set the datastore id as an environment variable.
+  <img src="images/datastore_id.jpg" alt="Datastore id" width="600"/>
+
+3. Set the datastore id as an environment variable.
     ```bash
     export CATALOG=<datastore_id>
     ```
     You can preview the search app, by navigating to the *Preview* section of the app, and configuring the widget to preview the fields of the dataset that you find interesting. Doing a search for an item should yeild good results.
 
-<img src="images/search_app.png" alt="Testing Search App" width="800"/>
+  <img src="images/search_app.png" alt="Testing Search App" width="800"/>
 
 
 #### Deploy Cloud functions
