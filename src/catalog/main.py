@@ -13,7 +13,6 @@
 # limitations under the License.
 #
 
-# [START genappbuilder_search]
 import os, json, re, ast
 from typing import  List
 from google.api_core.client_options import ClientOptions
@@ -25,7 +24,7 @@ import functions_framework
 project_id = os.getenv("PROJECT_ID")
 location = os.getenv("LOCATION")                    
 data_store_id = os.getenv("CATALOG")
-num_results_approx = os.getenv("EXPECTED_RESULTS", 5)
+num_results_approx = os.getenv("EXPECTED_RESULTS", 4)
 LOCAL = os.getenv("LOCAL", "false")
 
 def search_dataset(
@@ -75,20 +74,15 @@ def format_search_results(data):
     results = []
     for d in data["results"]:
         document = d["document"]["structData"]
-        formatted_title = format_title(document["title"])
-        if "description" in document:
-                description =  document["description"]
-        else:
-            description = ""
-        
+        formatted_title = format_title(document["title"])    
         result = {
             "title": formatted_title,
             "link": document["link"],
             "product_id":document["product_id"],
+            "description": document["description"], 
             "color": document["color"],
-            "gender": document["gender"],
-            "description": description, 
-            "brand": document["brand"]
+            "brand": document["brand"],
+            "gender": document["gender"]
             }            
         results.append(result)
 
@@ -193,7 +187,7 @@ def check_details(product):
 
 #### LOCAL TESTING
 if LOCAL=="true":
-    products = search_catalog("socks", brand="youtube")
+    products = search_catalog("mugs", brand="google cloud")
     print(products)
     result = check_details("magnets")
     print(result)

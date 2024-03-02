@@ -75,7 +75,7 @@ for i in range(40):
   sellers.append([seller_id, seller_name, seller_location, seller_rating])
 
 # Write data to CSV file
-with open("sellers.csv", "w", newline="") as csvfile:
+with open("datamanipulation/data/sellers.csv", "w", newline="") as csvfile:
   writer = csv.writer(csvfile)
   writer.writerow(["seller_id", "seller_name", "seller_location", "seller_rating"])
   writer.writerows(sellers)

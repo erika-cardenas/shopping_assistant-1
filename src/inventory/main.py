@@ -15,11 +15,7 @@
 
 # [START genappbuilder_search]
 import os, json, re
-from typing import  List
-from google.api_core.client_options import ClientOptions
-from google.cloud import discoveryengine_v1beta as discoveryengine
-from google.protobuf.json_format import MessageToJson
-
+import pandas as pd
 import functions_framework
 
 project_id = os.getenv("PROJECT_ID")
@@ -28,41 +24,13 @@ data_store_id = os.getenv("INVENTORY")
 num_results_approx = os.getenv("EXPECTED_RESULTS", 10)
 LOCAL = os.getenv("LOCAL", "false")
 
-def search_dataset(
-    project_id: str,
-    location: str,
-    data_store_id: str,
-    query: str,
-    page_size: int,
-) -> List[discoveryengine.SearchResponse]:
-   client_options = (
-        ClientOptions(api_endpoint=f"{location}-discoveryengine.googleapis.com")
-        if location != "global"
-        else None
-    )
-   client = discoveryengine.SearchServiceClient(client_options=client_options)
-   serving_config = client.serving_config_path(
-        project=project_id,
-        location=location,
-        data_store=data_store_id,
-        serving_config="default_config",
-    )
-   
-   request = discoveryengine.SearchRequest(
-        serving_config=serving_config,
-        query=query,
-        page_size=page_size,
-        # query_expansion_spec=discoveryengine.SearchRequest.QueryExpansionSpec(
-        #     condition=discoveryengine.SearchRequest.QueryExpansionSpec.Condition.AUTO,
-        # ),
-        # spell_correction_spec=discoveryengine.SearchRequest.SpellCorrectionSpec(
-        #     mode=discoveryengine.SearchRequest.SpellCorrectionSpec.Mode.N
-        # ),
-    )
-   response = client.search(request)
-   json_response = extract_results(MessageToJson(response._pb))
-   return json_response
-
+def search_by_product_id(product_id):
+    if product_id in df.index:
+        result_df = df.loc[product_id]
+        return result_df.to_dict(orient='records')  # Convert directly to JSON list
+    else:
+        return None
+    
 def format_title(text):
   # Regular expression pattern to match letters and numbers (alphanumeric)
   regex = r"[^a-zA-Z0-9\s]"  
@@ -71,8 +39,7 @@ def format_title(text):
 
 def format_search_results(data, max_price, min_rating, condition):
     results = []
-    for d in data["results"]:
-        document = d["document"]["structData"]
+    for document in data:
         formatted_title = format_title(document["title"])       
         result = {
             "title": formatted_title,
@@ -80,7 +47,6 @@ def format_search_results(data, max_price, min_rating, condition):
             "seller_rating": float(document["seller_rating"]),
             "price":float(document["price"]),
             "condition": document["condition"],
-            "product_id": document["product_id"],
             }  
         if result["price"] < float(max_price) and result["seller_rating"]  > float(min_rating): 
             if condition == "":        
@@ -89,15 +55,6 @@ def format_search_results(data, max_price, min_rating, condition):
                 results.append(result)
 
     return results
-
-def extract_results(json_string):
-    data = json.loads(json_string)  # Parse the JSON string
-    # Assuming "results" is a top-level field
-    if "results" in data:
-        new_data = {"results": data["results"]} 
-        return new_data # json.dumps(new_data)  # Serialize back to JSON
-    else:
-        return None  # Or another handling mechanism if "results" not found
 
 @functions_framework.http
 def http_inventory(request):
@@ -126,17 +83,28 @@ def build_filter(filter, value):
         return f"{filter}:ANY(\"{value}\", \"{value.lower()}\", \"{value.capitalize()}\")"
     return "" 
 
+def load_jsonlines_to_dataframe(fileName):
+    data = []
+    with open(fileName, 'r') as f:
+        for line in f:
+            data.append(json.loads(line))
+
+    df = pd.DataFrame(data)
+    return df    
 
 #### WRAPPERS
 def search_inventory(product_id, max_price, min_rating, condition):
-    results = search_dataset(project_id=project_id, location=location, data_store_id=data_store_id, query=product_id, page_size = 10)
+    results = search_by_product_id(product_id=product_id)
     if results is None:
         return ""
     formatted_results = format_search_results(results, max_price=max_price, min_rating=min_rating, condition=condition)
     return formatted_results
 
+main_file_dir = os.path.dirname(__file__)
+df = load_jsonlines_to_dataframe(f"{main_file_dir}/inventory_jsonlines.json")
+df.set_index('product_id', inplace=True)
 
 #### LOCAL TESTING
 if LOCAL=="true":
-    result = search_inventory("GGPIGAAB100413", 10000, 1, "")
+    result = search_inventory("GGOEGAEB189515", 10000, 1, "")
     print(result)

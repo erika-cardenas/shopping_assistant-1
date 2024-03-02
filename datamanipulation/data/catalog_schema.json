@@ -1,0 +1,47 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "title": {
+        "type": "string",
+        "keyPropertyMapping": "title",
+        "retrievable": true,
+        "completable": true
+      },
+      "description": {
+        "type": "string",
+        "retrievable": true
+      },
+      "categories": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "keyPropertyMapping": "category",
+          "dynamicFacetable": true
+        }
+      },
+      "color": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "dynamicFacetable": true
+        }
+      },
+      "gender": {
+        "type": "string",
+        "retrievable": "true",
+        "searchable": "true",
+        "indexable": "true"
+      },
+      "brand": {
+        "type": "string",
+        "retrievable": "true",
+        "searchable": "true",
+        "indexable": "true"
+      },
+      "link": {
+        "type": "string",
+        "keyPropertyMapping": "uri"
+      }
+    }
+  }

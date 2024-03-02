@@ -14,8 +14,8 @@ def remove_columns(input_file, output_file, columns_to_remove):
             writer.writerow([row[i] for i in column_indexes])  # Write rows without removed columns
 
 if __name__ == "__main__":
-    input_file = '1_removed_broken_links.csv'
-    output_file = '2_removed_unnecessary_columns.csv'
+    input_file = 'datamanipulation/data/1_removed_broken_links.csv'
+    output_file = 'datamanipulation/data/2_removed_unnecessary_columns.csv'
     columns_to_remove = ['availability', 'link']
 
     remove_columns(input_file, output_file, columns_to_remove)
