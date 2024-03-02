@@ -18,9 +18,6 @@ import os, json, re
 import pandas as pd
 import functions_framework
 
-project_id = os.getenv("PROJECT_ID")
-location = os.getenv("LOCATION")                    
-data_store_id = os.getenv("INVENTORY")
 num_results_approx = os.getenv("EXPECTED_RESULTS", 10)
 LOCAL = os.getenv("LOCAL", "false")
 

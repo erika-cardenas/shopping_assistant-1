@@ -25,7 +25,7 @@ import functions_framework
 
 
 LOCAL = os.getenv("LOCAL", "false")
-SEARCH_URL = os.getenv("SEARCH_URL", "https://us-central1-ccai-demo-414406.cloudfunctions.net/catalog")
+CATALOG_URL = os.getenv("CATALOG_URL")
 
 @functions_framework.http
 def http_format_products(request):

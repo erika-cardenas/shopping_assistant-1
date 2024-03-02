@@ -19,7 +19,7 @@ import functions_framework
 
 
 LOCAL = os.getenv("LOCAL", "false")
-DETAILS_SEARCH_URL = os.getenv("DETAILS_SEARCH_URL", "https://us-central1-ccai-demo-414406.cloudfunctions.net/inventory")
+INVENTORY_URL = os.getenv("INVENTORY_URL")
 
 def generate_webhook_response(payload, template="seller-template"):
   '''

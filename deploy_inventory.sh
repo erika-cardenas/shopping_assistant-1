@@ -10,5 +10,4 @@ gcloud functions deploy inventory \
   --min-instances=0\
   --trigger-http \
   --allow-unauthenticated \
-  --run-service-account=$FUNCTIONS_SERVICE_ACCOUNT \
-  --set-env-vars=PROJECT_ID=$PROJECT_ID,LOCATION=$LOCATION,INVENTORY=$INVENTORY
+  --run-service-account=$FUNCTIONS_SERVICE_ACCOUNT 
