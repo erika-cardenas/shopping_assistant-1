@@ -49,9 +49,11 @@ def format_products(request_json):
         query_params["gender"] = parameters["gender"]
     # if "color" in parameters:
     #     query_params["color"] = parameters["color"]
-    search_response = requests.get(SEARCH_URL, params=query_params)
-    search_response_json = search_response.json()
-    
+    search_response = requests.get(CATALOG_URL, params=query_params)
+    try:
+        search_response_json = search_response.json()
+    except Exception as e:
+        return []
     response = generate_webhook_response(search_response_json)
     return response
 
@@ -105,7 +107,7 @@ if LOCAL=="true":
                            {'session': 'projects/retail-vertical-project/locations/us-central1/agents/cee5a831-c4f0-41e9-9b2e-f767b0f4ad2d/sessions/dd01fd-d38-633-b58-1009e5185', 
                             'parameters':
                                            {
-                                               'product':"socks", 'brand': "android",
+                                               'product':"sweaters", 'brand': "google",
                                                'products': [{'description': 'These socks feature the Google logo on the side and a cityscape of Seattle on the front', 'link': 'https://shop.googlemerchandisestore.com/store/20160512512/assets/items/images/GGOEDAXQ225310.jpg', 'title': 'WA Classic Cotton Crew Socks'}, 
                                                                        {'description': 'This pack of three socks from Happy Socks features a variety of colorful and fun designs including dinosaurs polka dots and stripes', 'link': 'https://shop.googlemerchandisestore.com/store/20160512512/assets/items/images/GGOEGAXA185899.jpg', 'title': 'Google Crew Socks  3 pack'}, 
                                                                        {'description': 'These Google socks are made from a soft and comfortable cotton blend They feature a black background with a colorful polka dot pattern and the Google logo on the top Theyre perfect for everyday wear', 'link': 'https://shop.googlemerchandisestore.com/store/2016051'}]}}, 
