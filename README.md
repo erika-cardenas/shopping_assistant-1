@@ -1,10 +1,19 @@
 ## Introduction
+
+__VERSION__: 0.1-alpha
+
 We'll be creating a generative chatbot for a fictitious Google Merch Store Marketplace. The chatbot acts like a shopping assistant who helps users find the items they are looking for. Because it is a marketplace, the items are sold by independant sellers. Each seller has a rating. And the seller can seller an item for a certain price and the item may be *new*, *good as new* or *used*. The chatbot can also help the user select a seller based on the seller's rating, item price or item condition.
 
-[![Merch Store Marketplace Shopping Assistant](https://i9.ytimg.com/vi/VuJs4eF235U/mq2.jpg?sqp=COT1kK8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYACrAWKAgwIABABGF0gUyhlMA8=&rs=AOn4CLABgR1mArxjP_DUHUfA4OeBMHO81g)](https://youtu.be/VuJs4eF235U)
+<img src="images/Website.png" alt="Website" width="400"/>
+
+[![Merch Store Marketplace Shopping Assistant](https://i9.ytimg.com/vi/VuJs4eF235U/mq2.jpg?sqp=COT1kK8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYACrAWKAgwIABABGF0gUyhlMA8=&rs=AOn4CLABgR1mArxjP_DUHUfA4OeBMHO81g")](https://youtu.be/VuJs4eF235U)
 
 
-**NOTE**: This is a demo, and can not handle all potential responses the user makes. There may be some bugs you encounter. If the chatbot gets confused, restart the chatbot (or start a new session) and continue. 
+**NOTE**: 
+1. This is a demo, and can not handle all potential responses the user makes. There may be some bugs you encounter. If the chatbot gets confused, restart the chatbot (or start a new session) and continue. 
+1. This repo is a WIP. There may be bugs in the Readme steps, we will test this out in the next few weeks and update. Please file an Issue if you find a bug.
+
+
 
 ### The dataset
 The product catalog is a modified and augemented version of the Google Merch Store catalog. The sellers, their ratings, the item prices and conditions are generated artificially in this repo. The scripts can be found in the *datamanipulation* folder, and the original merch store dataset can be found here: *datamanipulation/data/input.csv*
@@ -34,9 +43,37 @@ If you have this enabled on your project, let's get started.
 1. Set some environment variables.
 
     ```bash
-    export $PROJECT_ID=<project_id>
+    export PROJECT_ID=<project_id>
     export LOCATION=<location you choose>
     ```
+1. Set your active project
+    ```bash
+    gcloud config set project $PROJECT_ID
+    
+    ```
+
+#### Enable APIs
+WIP: 
+This is a list of minimal services that need to be enabled on your account for this setup. This list may not be complete, but we will test this out and update this.
+
+```bash
+gcloud services enable \
+artifactregistry.googleapis.com chat.googleapis.com cloudbuild.googleapis.com \
+cloudfunctions.googleapis.com cloudresourcemanager.googleapis.com compute.googleapis.com \
+contactcenteraiplatform.googleapis.com containerregistry.googleapis.com \
+dataform.googleapis.com dialogflow.googleapis.com discoveryengine.googleapis.com 
+
+
+gcloud services enable \
+logging.googleapis.com notebooks.googleapis.com oslogin.googleapis.com \
+run.googleapis.com source.googleapis.com staging-cloudresourcemanager.sandbox.googleapis.com \
+storage-api.googleapis.com \
+vision.googleapis.com visionai.googleapis.com aiplatform.googleapis.com \
+storage-component.googleapis.com
+```
+
+This api **test-dialogflow.sandbox.googleapis.com** is also required, but it needs to be done manually as explained in the note earlier in the documentation.
+
 #### Create dataset files
 
 1. Assuming you're going to use the created datasets directly, let's upload them. If you want to follow all the steps for dataset manipulation, go to the Readme in the datamanipulation folder.
@@ -99,9 +136,16 @@ We have 5 functions to deploy.
     ```bash
     source deploy_catalog.sh
     ```
-    You can test this out by running this query. Replace the function url as required.
+    
+    Store the URL of the function as CATALOG_URL
+    
+    ```bash
+    export CATALOG_URL=<catalog_function_url>/catalog
+    ```
+    You can test this out by running this query.
+
     ```bash 
-     curl https://<function_url>/catalog?product=socks&brand=youtube
+     curl $CATALOG_URL?product=socks&brand=youtube
     ```
     This should return a result that looks like this
     ```bash
@@ -111,14 +155,14 @@ We have 5 functions to deploy.
     ```bash
     source deploy_inventory.sh
     ```
-    Store the URL of the function as CATALOG_URL
+    Store the URL of the function as INVENTORY_URL
     
     ```bash
-    export CATALOG_URL=<catalog_function_url>/catalog
+    export INVENTORY_URL=<inventory_function_url>/inventory
     ```
-    You can test this out by running this query. Replace the function url as required.
+    You can test this out by running this query. 
     ```bash
-     curl https://<function_url>/inventory?product_id=GGOSGAXA110010
+     curl $INVENTORY_URL?product_id=GGOSGAXA110010
     ```
     This should return a result that looks like this:
         
@@ -129,15 +173,14 @@ We have 5 functions to deploy.
     ```bash
     source deploy_inventory_quick_check.sh
     ```
-    Store the URL of the function as INVENTORY_URL
+    Store the URL of the function as INVENTORY_CHECK_URL
     
     ```bash
-    export INVENTORY_URL=<inventory_function_url>/inventory
+    export INVENTORY_CHECK_URL=<inventory_function_url>/inventory
     ```
-    
     You can test this out by running this query. Replace the function url as required.
     ```bash
-     curl https://<function_url>/product_check?product=socks
+     curl $INVENTORY_CHECK_URL?product=socks
     ```
     This should return a result that looks like this:
         
