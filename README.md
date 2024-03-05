@@ -112,7 +112,21 @@ This api **test-dialogflow.sandbox.googleapis.com** is also required, but it nee
  At the end of this step, you should have a *Vertex Search App* and a connected *datastore*. 
 2. Next, we want to update the default schema to retrieve the *description* field of the dataset as we present this to the user. So in the dataset, go to the **Schema** and then click on **EDIT**. Find the **description** field and enable **Retrievable**. **SAVE** the updated schema.
 
-2. You can preview the search app, by navigating to the *Preview* section of the app, and configuring the widget to preview the fields of the dataset that you find interesting. Doing a search for an item should yeild good results. It is best to wait a while before you get results, as reindexing the datastore is a slow process. It may take an hour or two to start getting the first set of results, and longer to index all the documents.
+Optional: To reduce the indexing time you can update the schema to not index the description and id fields and reduce the number of dynamically facetable fields.
+
+```bash
+curl -X PATCH \
+-H "Authorization: Bearer $(gcloud auth print-access-token)" \
+-H "Content-Type: application/json" \
+"https://us-discoveryengine.googleapis.com/v1beta/projects/$PROJECT_ID/locations/us/collections/default_collection/dataStores/$CATALOG/schemas/default_schema" \
+-d '{
+  "structSchema": {"$schema":"https://json-schema.org/draft/2020-12/schema","type":"object","properties":{"title":{"type":"string","keyPropertyMapping":"title","retrievable":true},"link":{"searchable":false,"retrievable":true,"indexable":false,"dynamicFacetable":false,"type":"string"},"product_id":{"type":"string","indexable":false,"retrievable":true,"dynamicFacetable":false,"searchable":false},"color":{"type":"string","dynamicFacetable":true,"indexable":true,"searchable":true,"retrievable":true},"id":{"dynamicFacetable":false,"indexable":false,"retrievable":false,"type":"string","searchable":false},"brand":{"searchable":true,"indexable":true,"dynamicFacetable":true,"retrievable":true,"type":"string"},"category":{"indexable":true,"searchable":true,"type":"string","retrievable":true,"dynamicFacetable":true},"description":{"type":"string","retrievable":true,"indexable":false, "dynamicFacetable": false},"gender":{"retrievable":true,"type":"string","searchable":true,"indexable":true,"dynamicFacetable":false}}}
+}'
+```
+
+2. You can preview the search app, by navigating to the *Preview* section of the app, and configuring the widget to preview the fields of the dataset that you find interesting. Doing a search for an item should yeild good results. It is best to wait a while before you get results, as reindexing the datastore is a slow process. 
+
+**NOTE**: It may take many many hours to start getting the first set of results, and longer to index all the documents. Wait for the search results to start appearing before you go to the next step.
 
   <img src="images/search_app.png" alt="Testing Search App" width="800"/>
 
