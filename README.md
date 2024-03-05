@@ -98,10 +98,11 @@ This api **test-dialogflow.sandbox.googleapis.com** is also required, but it nee
 
  1. Create a search application in Vertex search.
   Follow the steps [here](https://cloud.google.com/generative-ai-app-builder/docs/create-engine-es#genappbuilder_create_app-console). 
+ * Select **SEARCH** as the app type.
  * You can use the name *merch-catalog-search* for **AppName** and *merch-online* for **Company Name**. 
  * Set the *SEARCH_DATASET_LOCATION* as the **Location**.
  * In the next step, choose **CREATE A NEW DATASTORE**. 
- * Select the bucket we created in the previous step and select **JSON for structured data with metadata (Preview)** as the type of data you are importing. 
+ * Select the bucket we created in the previous step and select **JSON for structured data (Preview)** as the type of data you are importing. 
  * Give the name *merch-catalog* as the **Datastore name**. 
  * This should generate a datastore-id automatically that looks something like this *merch-catalog-123456789*. 
  * Store this value as an environment variable.
@@ -110,7 +111,7 @@ This api **test-dialogflow.sandbox.googleapis.com** is also required, but it nee
     ```
 
  At the end of this step, you should have a *Vertex Search App* and a connected *datastore*. 
-
+2. Next, we want to update the default schema to retrieve the *description* field of the dataset as we present this to the user. So in the dataset, go to the **Schema** and then click on **EDIT**. Find the **description** field and enable **Retrievable**. **SAVE** the updated schema.
 
 2. You can preview the search app, by navigating to the *Preview* section of the app, and configuring the widget to preview the fields of the dataset that you find interesting. Doing a search for an item should yeild good results.
 
