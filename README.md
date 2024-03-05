@@ -1,6 +1,6 @@
 ## Introduction
 
-__VERSION__: 0.1-alpha
+__VERSION__: 0.2-alpha
 
 We'll be creating a generative chatbot for a fictitious Google Merch Store Marketplace. The chatbot acts like a shopping assistant who helps users find the items they are looking for. Because it is a marketplace, the items are sold by independant sellers. Each seller has a rating. And the seller can seller an item for a certain price and the item may be *new*, *good as new* or *used*. The chatbot can also help the user select a seller based on the seller's rating, item price or item condition.
 
@@ -11,7 +11,6 @@ We'll be creating a generative chatbot for a fictitious Google Merch Store Marke
 
 **NOTE**: 
 1. This is a demo, and can not handle all potential responses the user makes. There may be some bugs you encounter. If the chatbot gets confused, restart the chatbot (or start a new session) and continue. 
-1. This repo is a WIP. There may be bugs in the Readme steps, we will test this out in the next few weeks and update. Please file an Issue if you find a bug.
 
 
 
