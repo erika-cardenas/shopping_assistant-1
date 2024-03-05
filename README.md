@@ -4,13 +4,10 @@ __VERSION__: 0.2-alpha
 
 We'll be creating a generative chatbot for a fictitious Google Merch Store Marketplace. The chatbot acts like a shopping assistant who helps users find the items they are looking for. Because it is a marketplace, the items are sold by independant sellers. Each seller has a rating. And the seller can seller an item for a certain price and the item may be *new*, *good as new* or *used*. The chatbot can also help the user select a seller based on the seller's rating, item price or item condition.
 
-<img src="images/Website.png" alt="Website" width="400"/>
-
-[![Merch Store Marketplace Shopping Assistant](https://i9.ytimg.com/vi/VuJs4eF235U/mq2.jpg?sqp=COT1kK8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYACrAWKAgwIABABGF0gUyhlMA8=&rs=AOn4CLABgR1mArxjP_DUHUfA4OeBMHO81g")](https://youtu.be/VuJs4eF235U)
+[![Merch Store Marketplace Shopping Assistant](https://i9.ytimg.com/vi_webp/VuJs4eF235U/mq2.webp?sqp=CPCxna8G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYACrAWKAgwIABABGF0gUyhlMA8=&rs=AOn4CLCGaFhJYmv98u1qR6W-ZgNfXVCYXQ)](https://youtu.be/VuJs4eF235U)
 
 
-**NOTE**: 
-1. This is a demo, and can not handle all potential responses the user makes. There may be some bugs you encounter. If the chatbot gets confused, restart the chatbot (or start a new session) and continue. 
+**NOTE**: This is a demo, and can not handle all potential responses the user makes. There may be some bugs you encounter. If the chatbot gets confused, restart the chatbot (or start a new session) and continue. This demo is not endorsed by Google or Google Cloud.
 
 
 
@@ -101,7 +98,7 @@ This api **test-dialogflow.sandbox.googleapis.com** is also required, but it nee
  * Set the *GLOBAL* as the **Location**.
  * In the next step, choose **CREATE A NEW DATASTORE**. 
  * Select the bucket we created in the previous step and select **JSON for structured data (Preview)** as the type of data you are importing. 
- * Give the name *merch-catalog* as the **Datastore name**. 
+ * Set the **Datastore name** as *merch-catalog*. 
  * This should generate a datastore-id automatically that looks something like this *merch-catalog-123456789*. 
  * Store this value as an environment variable.
      ```bash
@@ -110,7 +107,7 @@ This api **test-dialogflow.sandbox.googleapis.com** is also required, but it nee
 
  At the end of this step, you should have a *Vertex Search App* and a connected *datastore*. 
 
-2. Next, we want to update the default schema to retrieve the *description* field of the dataset as we present this to the user. To do this, we update the schema. We update the *description* field to be *retrievable*. Wait about 5 minutes for before run the following command. This is to ensure that the documents are ingested and the search app discovers the datastore. You can test this out by going to the preview section of the search app and searching for an item like socks. Wait until some results are returned. If the app has found the dataset and returns results, run the following command to enable description retrieval.
+2. Next, we want to update the default schema to retrieve the *description* field of the dataset as we present this to the user. To do this, we update the schema. We update the *description* field to be *retrievable*. Wait about 5 minutes for before run the following command. This is to ensure that the documents are ingested and the search app discovers the datastore. You can test this out by going to the preview section of the search app and searching for an item like socks. Wait until some results are returned. After the app has found the dataset and returns results, run the following command to enable description retrieval.
 
 ```bash
 curl -X PATCH \
@@ -122,7 +119,7 @@ curl -X PATCH \
 }'
 ```
 
-3. You can preview the search app, by navigating to the *Preview* section of the app, and configuring the widget to preview the fields of the dataset that you find interesting. Doing a search for an item should yield  results. It is best to wait a while before you get results with description, product_id, as updating the datastore schema is not an instant process. 
+3. You can preview the search app, by navigating to the *Preview* section of the app, and configuring the widget to preview the fields of the dataset that you find interesting. Doing a search for an item should yield  results. It is best to wait a while before you get results with description, product_id, as updating the datastore schema is not an instantaneous process. 
 
   <img src="images/search_app.png" alt="Testing Search App" width="800"/>
 
