@@ -111,8 +111,7 @@ This api **test-dialogflow.sandbox.googleapis.com** is also required, but it nee
 
  At the end of this step, you should have a *Vertex Search App* and a connected *datastore*. 
 
-2. Next, we want to update the default schema to retrieve the *description* field of the dataset as we present this to the user. To do this, we update the schema. We update the *description* field to no longer be a *key property* and set it is as *retrievable*. For some reason (under investigation), just making it retrievable doesn't suffice, as the descriptions are still not returned by the search operation. Wait about 5 minutes for before run the following command. This is to ensure that the documents are ingested and the search app discovers
-the datastore. You can test this out by going to the preview section of the search app and searching for an item like socks. Wait until some results are returned. You will notice that no descriptions are returned in the results. If the app has found the dataset and returns results, run the following command.
+2. Next, we want to update the default schema to retrieve the *description* field of the dataset as we present this to the user. To do this, we update the schema. We update the *description* field to be *retrievable*. Wait about 5 minutes for before run the following command. This is to ensure that the documents are ingested and the search app discovers the datastore. You can test this out by going to the preview section of the search app and searching for an item like socks. Wait until some results are returned. If the app has found the dataset and returns results, run the following command to enable description retrieval.
 
 ```bash
 curl -X PATCH \
@@ -120,11 +119,11 @@ curl -X PATCH \
 -H "Content-Type: application/json" \
 "https://discoveryengine.googleapis.com/v1beta/projects/$PROJECT_ID/locations/global/collections/default_collection/dataStores/$CATALOG/schemas/default_schema" \
 -d '{
-  "structSchema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "type": "object", "properties": { "description": { "type": "string", "retrievable": true, "dynamicFacetable": false }, "brand": { "indexable": true, "retrievable": true, "searchable": true, "type": "string", "dynamicFacetable": true }, "category": { "indexable": true, "type": "string", "retrievable": true, "searchable": true, "dynamicFacetable": true }, "link": { "retrievable": true, "indexable": true, "type": "string", "searchable": true, "dynamicFacetable": true }, "gender": { "indexable": true, "dynamicFacetable": true, "type": "string", "retrievable": true, "searchable": true }, "color": { "type": "string", "dynamicFacetable": true, "searchable": true, "indexable": true, "retrievable": true }, "title": { "keyPropertyMapping": "title", "retrievable": true, "type": "string" }, "product_id": { "retrievable": true, "type": "string", "dynamicFacetable": true, "searchable": true, "indexable": true }, "id": { "indexable": true, "retrievable": true, "type": "string", "dynamicFacetable": true, "searchable": true } } } 
+  "structSchema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "type": "object", "properties": { "description": { "type": "string", "retrievable": true, "keyPropertyMapping": "description" }, "brand": { "indexable": true, "retrievable": true, "searchable": true, "type": "string", "dynamicFacetable": true }, "category": { "indexable": true, "type": "string", "retrievable": true, "searchable": true, "dynamicFacetable": true }, "link": { "retrievable": true, "indexable": true, "type": "string", "searchable": true, "dynamicFacetable": true }, "gender": { "indexable": true, "dynamicFacetable": true, "type": "string", "retrievable": true, "searchable": true }, "color": { "type": "string", "dynamicFacetable": true, "searchable": true, "indexable": true, "retrievable": true }, "title": { "keyPropertyMapping": "title", "retrievable": true, "type": "string" }, "product_id": { "retrievable": true, "type": "string", "dynamicFacetable": true, "searchable": true, "indexable": true }, "id": { "indexable": true, "retrievable": true, "type": "string", "dynamicFacetable": true, "searchable": true } } } 
 }'
 ```
 
-3. You can preview the search app, by navigating to the *Preview* section of the app, and configuring the widget to preview the fields of the dataset that you find interesting. Doing a search for an item should yield  results. It might take a few minutes before descriptions are returned. It is best to wait a while before you get results with description, product_id, as updating the datastore is not a very quick process. 
+3. You can preview the search app, by navigating to the *Preview* section of the app, and configuring the widget to preview the fields of the dataset that you find interesting. Doing a search for an item should yield  results. It is best to wait a while before you get results with description, product_id, as updating the datastore schema is not an instant process. 
 
   <img src="images/search_app.png" alt="Testing Search App" width="800"/>
 
@@ -214,7 +213,7 @@ We have 5 functions to deploy. YSu
         source deploy_seller_formatter.sh
     ```  
 #### Create DialogFlow Agent and Generative Playbooks
-Navigate to the dialogflow console *https://dialogflow.cloud.google.com/cx/projects* and select the project you want to use.
+Navigate to the dialogflow console *https://dialogflow.cloud.google.com/cx/projects* and select your project.
 1. Click on **create agent** and select **Build your own**.  
 2. Give it a name like *merch-store-agent*, select a region, language, and time-zone and select *Generative Playbook* as the **default resource**. Click **Create**. Now you'll have a new agent.
 3. Go back to the **Dialogflow/Agents** menu and click on the three dots next to the name of the newly created agent and select **Restore**. 
@@ -278,6 +277,6 @@ We're going to deploy the website locally using a python webserver.
 ```bash
 python3 -m http.server 8080
 ```
-4. Navigate to the browser and go to **localhost:8080** .
+4. Navigate to the browser and go to **localhost:8080**.
 The chatbot will be ready to use.
 
