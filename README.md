@@ -156,7 +156,7 @@ We have 5 functions to deploy. YSu
     Store the URL of the function as CATALOG_URL
     
     ```bash
-    export CATALOG_URL="https://$REGION-$PROJECT_ID.cloudfunctions.net/catalog    
+    export CATALOG_URL="https://$REGION-$PROJECT_ID.cloudfunctions.net/catalog" 
     ```
     You can test this out by running this query.
 
@@ -193,7 +193,7 @@ We have 5 functions to deploy. YSu
     Store the URL of the function as INVENTORY_CHECK_URL
     
     ```bash
-    export INVENTORY_CHECK_URL=$(gcloud functions describe product_check --region=$REGION --format="value(serviceConfig.uri)")/product_check    
+    export INVENTORY_CHECK_URL="https://$REGION-$PROJECT_ID.cloudfunctions.net/product_check"
     ```
     You can test this out by running this query. Replace the function url as required.
     
@@ -221,10 +221,22 @@ Navigate to the dialogflow console *https://dialogflow.cloud.google.com/cx/proje
 4. Select **Upload**  as the file source and select the *agents/agent-merch-store.zip* file. The agent is almost ready to use. We just need to replace the URL's in the webhooks and the OpenAPI tools.
 5. Go to the **CX Flow Resources** tab in the top left corner of the page. 
 6. Go to the **Manage** tab and select webhooks.
-7. In the **get_products** webhook replace *example.com* with url of the cloud function. It should look something like this *https://<functions_url>/format_products*. Click *SAVE* on the webhook.
-8. Go to the **get_sellers** webhook and do the same. It should look something like this *https://<functions_url>/format_sellers*. Click *SAVE* on the webhook.
+7. In the **get_products** webhook replace the placeholder url with that of the cloud function with the value generated below. 
+```bash
+echo https://$REGION-$PROJECT_ID.cloudfunctions.net/format_products
+```
+Click *SAVE* on the webhook.
+8. Go to the **get_sellers** webhook and do the same. Get the URL by running the following command
+```bash
+echo https://$REGION-$PROJECT_ID.cloudfunctions.net/format_sellers
+```
+Click *SAVE* on the webhook.
 9. Go back to the **Generative Resources** tab in the top left part of the page and select **TOOLS**. 
-10. Go to the *inventory_quick_check* tool and replace url *https://example.com* in the schema with the URL of the product_check function. **Don't** add the *product_check* path to it. Click *SAVE* on the tool.
+10. Go to the *inventory_quick_check* tool and replace url *https://example.com* in the schema with the URL of the product_check function. et the URL by running the following command
+```bash
+echo https://$REGION-$PROJECT_ID.cloudfunctions.net
+```
+**Don't** add the *product_check* path to it. Click *SAVE* on the tool.
 
 Now your agent is ready to use. You can test it out by clicking on **Test Agent** and select **Playbook** as the workstream.
 
