@@ -111,8 +111,8 @@ This api **test-dialogflow.sandbox.googleapis.com** is also required, but it nee
 
  At the end of this step, you should have a *Vertex Search App* and a connected *datastore*. 
 
-2. Next, we want to update the default schema to retrieve the *description* field of the dataset as we present this to the user. To do this, we update the schema. We update the *description* field to no longer be a *key property* and set it is as *retrievable*. For some reason (under investigation), just making it retrievable doesn't suffice, as the descriptions are still not returned by the search operation. Wait about 5 minutes for before you proceed to this step. This is to ensure that the documents are ingested and the search app discovers
-the datastore. You can test this out by going to the preview section of the search app and searching for an item like socks. Wait until some results are returned. You will notice that no descriptions are returned in the results.
+2. Next, we want to update the default schema to retrieve the *description* field of the dataset as we present this to the user. To do this, we update the schema. We update the *description* field to no longer be a *key property* and set it is as *retrievable*. For some reason (under investigation), just making it retrievable doesn't suffice, as the descriptions are still not returned by the search operation. Wait about 5 minutes for before run the following command. This is to ensure that the documents are ingested and the search app discovers
+the datastore. You can test this out by going to the preview section of the search app and searching for an item like socks. Wait until some results are returned. You will notice that no descriptions are returned in the results. If the app has found the dataset and returns results, run the following command.
 
 ```bash
 curl -X PATCH \
@@ -124,11 +124,11 @@ curl -X PATCH \
 }'
 ```
 
-3. Give this a few minutes. You can preview the search app, by navigating to the *Preview* section of the app, and configuring the widget to preview the fields of the dataset that you find interesting. Doing a search for an item should yeild good results. It is best to wait a while before you get results with description, product_id, as reindexing the datastore is a slow process. 
+3. You can preview the search app, by navigating to the *Preview* section of the app, and configuring the widget to preview the fields of the dataset that you find interesting. Doing a search for an item should yield  results. It might take a few minutes before descriptions are returned. It is best to wait a while before you get results with description, product_id, as updating the datastore is not a very quick process. 
 
   <img src="images/search_app.png" alt="Testing Search App" width="800"/>
 
-Crucially, wait till you see the *description* in the preview results before proceeding to the next steps. It might take 10-15 minutes. If even after that time, no descriptions appear, rerun the command above again.
+Crucially, wait till you see the *description* in the preview results before proceeding to the next steps. It might take 10-15 minutes. If even after that time, no descriptions appear, rerun the aftorementioned command  again.
 
 #### Deploy Cloud functions
  
@@ -156,7 +156,7 @@ We have 5 functions to deploy. YSu
     Store the URL of the function as CATALOG_URL
     
     ```bash
-    export CATALOG_URL=$(gcloud functions describe catalog --region=$REGION --format="value(serviceConfig.uri)")/catalog    
+    export CATALOG_URL="https://$REGION-$PROJECT_ID.cloudfunctions.net/catalog    
     ```
     You can test this out by running this query.
 
@@ -175,7 +175,7 @@ We have 5 functions to deploy. YSu
     Store the URL of the function as INVENTORY_URL
     
     ```bash
-    export INVENTORY_URL=$(gcloud functions describe inventory --region=$REGION --format="value(serviceConfig.uri)")/inventory    
+    export INVENTORY_URL="https://$REGION-$PROJECT_ID.cloudfunctions.net/inventory"    
     ```
     You can test this out by running this query. 
     ```bash
