@@ -11,4 +11,4 @@ gcloud functions deploy catalog \
   --trigger-http \
   --allow-unauthenticated \
   --run-service-account=$FUNCTIONS_SERVICE_ACCOUNT \
-  --set-env-vars=PROJECT_ID=$PROJECT_ID,LOCATION=$LOCATION,CATALOG=$CATALOG
+  --set-env-vars=PROJECT_ID=$PROJECT_ID,LOCATION=$SEARCH_DATASTORE_LOCATION,CATALOG=$CATALOG

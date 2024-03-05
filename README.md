@@ -88,10 +88,9 @@ This api **test-dialogflow.sandbox.googleapis.com** is also required, but it nee
        gcloud storage buckets create gs://$PROJECT_ID-product_catalog --location=$BUCKET_LOCATION
       ```
        
-    We'll upload the catalog files and the schema file to the bucket.
+    We'll upload the catalog file to the bucket.
       ```bash
       gcloud storage cp datamanipulation/data/catalog_jsonlines.json gs://$PROJECT_ID-product_catalog
-      gcloud storage cp datamanipulation/data/catalog_schema.json gs://$PROJECT_ID-product_catalog
       ```
  
  #### Create Vertex Search App and Dataset
@@ -113,7 +112,7 @@ This api **test-dialogflow.sandbox.googleapis.com** is also required, but it nee
  At the end of this step, you should have a *Vertex Search App* and a connected *datastore*. 
 2. Next, we want to update the default schema to retrieve the *description* field of the dataset as we present this to the user. So in the dataset, go to the **Schema** and then click on **EDIT**. Find the **description** field and enable **Retrievable**. **SAVE** the updated schema.
 
-2. You can preview the search app, by navigating to the *Preview* section of the app, and configuring the widget to preview the fields of the dataset that you find interesting. Doing a search for an item should yeild good results.
+2. You can preview the search app, by navigating to the *Preview* section of the app, and configuring the widget to preview the fields of the dataset that you find interesting. Doing a search for an item should yeild good results. It is best to wait a while before you get results, as reindexing the datastore is a slow process. It may take an hour or two to start getting the first set of results, and longer to index all the documents.
 
   <img src="images/search_app.png" alt="Testing Search App" width="800"/>
 
