@@ -6,19 +6,15 @@
         "type": "string",
         "keyPropertyMapping": "id"
       },
+      "product_id": {
+        "type": "string",
+        "retrievable": true
+      },
       "title": {
         "type": "string",
         "keyPropertyMapping": "title",
         "retrievable": true,
         "completable": true
-      },
-      "description": {
-        "type": "string",
-        "retrievable": true
-      },
-      "product_id": {
-        "type": "string",
-        "retrievable": true
       },
       "category": {
         "type": "array",
@@ -27,6 +23,14 @@
           "keyPropertyMapping": "category",
           "dynamicFacetable": true
         }
+      },
+      "link": {
+        "type": "string",
+        "keyPropertyMapping": "uri"
+      },
+      "description": {
+        "type": "string",
+        "retrievable": true
       },
       "color": {
         "type": "array",
@@ -46,10 +50,6 @@
         "retrievable": "true",
         "searchable": "true",
         "indexable": "true"
-      },
-      "link": {
-        "type": "string",
-        "keyPropertyMapping": "uri"
       }
     }
   }
