@@ -11,5 +11,5 @@ gcloud functions deploy format_products \
   --trigger-http \
   --allow-unauthenticated \
   --run-service-account=$FUNCTIONS_SERVICE_ACCOUNT \
-  --set-env-vars=PROJECT_ID=$PROJECT_ID,CATALOG_URL=$CATALOG_URL
+  --set-env-vars=PROJECT_ID=$PROJECT_ID,CATALOG_URL=$CATALOG_URL,LOCAL=false
 

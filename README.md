@@ -132,7 +132,7 @@ Crucially, wait till you see the *description* in the preview results before pro
 
 #### Deploy Cloud functions
  
-Next it is time to deploy the CloudFunctions required for the chatbot. In this version, the functions run **unauthenticated**. We'll upate the Readme later to show you how to add authentication.
+Next it is time to deploy the CloudFunctions required for the chatbot. In this version, the functions run **unauthenticated**. You will need the Domain Restriction policy in the Organizational policies to be disabled. So follow these [steps](https://cloud.google.com/resource-manager/docs/organization-policy/restricting-domains#console). We'll update the Readme later to show you how to add authentication.
 We need to create a service account with the necessary permissions for the functions to access the search app. 
 
 ```bash
@@ -147,7 +147,7 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 export FUNCTIONS_SERVICE_ACCOUNT=functions-service-account@$PROJECT_ID.iam.gserviceaccount.com
 ```
 
-We have 5 functions to deploy.
+We have 5 functions to deploy. YSu
 * The **catalog** function. This function forwards search queries to the *Vector Search App* and returns the results.
     ```bash
     source deploy_catalog.sh
@@ -156,7 +156,7 @@ We have 5 functions to deploy.
     Store the URL of the function as CATALOG_URL
     
     ```bash
-    export CATALOG_URL=<catalog_function_url>/catalog
+    export CATALOG_URL=$(gcloud functions describe catalog --region=$REGION --format="value(serviceConfig.uri)")/catalog    
     ```
     You can test this out by running this query.
 
@@ -167,14 +167,15 @@ We have 5 functions to deploy.
     ```bash
     [{"brand":"Youtube","color":"['Blue', 'White']","description":"The Agones Retro Pixel Crew Socks are the perfect way to add a touch of style and fun to your everyday wardrobe These socks are made from a soft and comfortable cotton blend and feature a colorful pixelated design Theyre perfect for pairing with your favorite sneakers or boots","gender":"Unisex","link":"https://shop.googlemerchandisestore.com/store/20200306486/assets/items/images/GGOSGAXA110010.jpg","product_id":"GGOSGAXA110010","title":"Agones Retro Pixel Crew Socks"},{"brand":"Youtube","color":"['Black', 'White']","description":"A pair of black socks with the YouTube logo on the side and a pattern of white squiggles all over","gender":"Unisex","link":"https://shop.googlemerchandisestore.com/store/20160512512/assets/items/images/GGOEYAXA197410.jpg","product_id":"GGOEYAXA197410","title":"Youtube Socks"}]
     ```
-* The **inventory** function. This function searches for a *product_id* and returns the details of the sellers selling the item.
+* The **inventory** function. This function searches for a *product_id* and returns the details of the sellers  selling the item.
+
     ```bash
     source deploy_inventory.sh
     ```
     Store the URL of the function as INVENTORY_URL
     
     ```bash
-    export INVENTORY_URL=<inventory_function_url>/inventory
+    export INVENTORY_URL=$(gcloud functions describe inventory --region=$REGION --format="value(serviceConfig.uri)")/inventory    
     ```
     You can test this out by running this query. 
     ```bash
@@ -192,9 +193,10 @@ We have 5 functions to deploy.
     Store the URL of the function as INVENTORY_CHECK_URL
     
     ```bash
-    export INVENTORY_CHECK_URL=<inventory_function_url>/inventory
+    export INVENTORY_CHECK_URL=$(gcloud functions describe product_check --region=$REGION --format="value(serviceConfig.uri)")/product_check    
     ```
     You can test this out by running this query. Replace the function url as required.
+    
     ```bash
      curl $INVENTORY_CHECK_URL?product=socks
     ```
@@ -203,11 +205,11 @@ We have 5 functions to deploy.
     ```bash
    {"brands":{"android":5,"golang":1,"google":30,"google cloud":3,"gopher":3,"waze":2,"youtube":5},"colors":{"black":23,"blue":28,"brown":1,"green":12,"grey":2,"multicolor":10,"navy":1,"orange":4,"pink":1,"purple":1,"red":6,"white":32,"yellow":12},"found":50,"gendered":false,"inventory":true}
      ```
-* The *format_products* function. This function is called by a webook in the Generative agent. This function returns the user's products formatted so that it can be displayed by the *dialogflow-messenger*. This function invokes the */catalog* function to get the search results.
+* The *format_products* function. This function is called by a webook in the Generative agent. This function returns the user's products formatted so that it can be displayed by the *dialogflow-messenger*. This function invokes the *catalog* function to get the search results.
      ```bash
         source deploy_product_formatter.sh
     ``` 
-* The *format_sellers* function. This function is called by a webook in the Generative agent. This function returns the sellers for a selected product formatted so that it can be displayed by the *dialogflow-messenger*. This function invokes the */inventory* function to get the seller results.
+* The *format_sellers* function. This function is called by a webook in the Generative agent. This function returns the sellers for a selected product formatted so that it can be displayed by the *dialogflow-messenger*. This function invokes the *inventory* function to get the seller results.
      ```bash
         source deploy_seller_formatter.sh
     ```  

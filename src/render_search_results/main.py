@@ -13,13 +13,7 @@
 # limitations under the License.
 #
 
-# [START genappbuilder_search]
-import os, json, re
-from typing import  List
-from google.api_core.client_options import ClientOptions
-from google.cloud import discoveryengine_v1beta as discoveryengine
-from google.protobuf.json_format import MessageToJson
-
+import os
 import requests
 import functions_framework
 
@@ -47,8 +41,6 @@ def format_products(request_json):
         query_params["brand"] = parameters["brand"]
     if "gender" in parameters and parameters["gender"] != "":
         query_params["gender"] = parameters["gender"]
-    # if "color" in parameters:
-    #     query_params["color"] = parameters["color"]
     search_response = requests.get(CATALOG_URL, params=query_params)
     try:
         search_response_json = search_response.json()
