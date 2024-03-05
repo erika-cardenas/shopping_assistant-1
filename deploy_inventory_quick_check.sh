@@ -3,7 +3,7 @@ gcloud config set project $PROJECT_ID
 
 gcloud functions deploy product_check \
   --gen2 \
-  --region=us-central1 \
+  --region=$REGION \
   --runtime=python310 \
   --source=./src/catalog \
   --entry-point=http_product_check\

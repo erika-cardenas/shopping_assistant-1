@@ -3,7 +3,7 @@ gcloud config set project $PROJECT_ID
 
 gcloud functions deploy format_products \
   --gen2 \
-  --region=us-central1 \
+  --region=$REGION \
   --runtime=python310 \
   --source=./src/render_search_results \
   --entry-point=http_format_products\
