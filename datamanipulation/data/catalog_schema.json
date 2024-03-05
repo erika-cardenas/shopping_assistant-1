@@ -2,6 +2,10 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
     "properties": {
+      "id": {
+        "type": "string",
+        "keyPropertyMapping": "id"
+      },
       "title": {
         "type": "string",
         "keyPropertyMapping": "title",
@@ -12,7 +16,11 @@
         "type": "string",
         "retrievable": true
       },
-      "categories": {
+      "product_id": {
+        "type": "string",
+        "retrievable": true
+      },
+      "category": {
         "type": "array",
         "items": {
           "type": "string",

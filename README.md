@@ -42,9 +42,12 @@ If you have this enabled on your project, let's get started.
    ```
 1. Set some environment variables.
 
+Check [here](https://cloud.google.com/generative-ai-app-builder/docs/locations?_gl=1*je0mjx*_ga*MTM2NjM1MzU1MC4xNjc2Nzk1NDE3*_ga_WH2QY8WWF5*MTcwOTYyOTc2Ny4zOTAuMS4xNzA5NjMwNDQzLjAuMC4w&_ga=2.41225698.-1366353550.1676795417) for available search datastore locations.
+    
     ```bash
     export PROJECT_ID=<project_id>
-    export LOCATION=<location you choose>
+    export SEARCH_DATASTORE_LOCATION=<location you choose for search dataset.>
+    export BUCKET_LOCATION=<location of bucket>
     ```
 1. Set your active project
     ```bash
@@ -82,34 +85,34 @@ This api **test-dialogflow.sandbox.googleapis.com** is also required, but it nee
     In this example, the catalog is served by vertex search and the inventory file is stored in a dataframe in a Google Cloud function. We don't use vertex search for the inventory as the queries are very simple and don't require vertex search. 
 
      ```bash
-       gcloud config set project $PROJECT_ID
-       gcloud storage buckets create gs://product_catalog --location=LOCATION
+       gcloud storage buckets create gs://$PROJECT_ID-product_catalog --location=$BUCKET_LOCATION
       ```
        
     We'll upload the catalog files and the schema file to the bucket.
       ```bash
-      gcloud storage cp datamanipulation/data/catalog_jsonlines.json gs://product_catalog
-      gcloud storage cp datamanipulation/data/catalog_schema.json gs://product_catalog
+      gcloud storage cp datamanipulation/data/catalog_jsonlines.json gs://$PROJECT_ID-product_catalog
+      gcloud storage cp datamanipulation/data/catalog_schema.json gs://$PROJECT_ID-product_catalog
       ```
  
  #### Create Vertex Search App and Dataset
 
  1. Create a search application in Vertex search.
- Follow the steps [here](https://cloud.google.com/generative-ai-app-builder/docs/create-engine-es#genappbuilder_create_app-console). When creating the datastore, select the bucket we created in the previous step and select *JSON for structured data with metadata (Preview)* as the type of data you are importing. At the end of this step, you should have a *Vertex Search App* and a connected *datastore*. 
-
-
-  <img src="images/importing_data.png" alt="Importing data" width="800"/>
-
- 
- 2. Note down the datastore's id by navigating to the *data* section of the app and looking for the datastore id.
-
-  <img src="images/datastore_id.jpg" alt="Datastore id" width="600"/>
-
-3. Set the datastore id as an environment variable.
-    ```bash
+  Follow the steps [here](https://cloud.google.com/generative-ai-app-builder/docs/create-engine-es#genappbuilder_create_app-console). 
+ * You can use the name *merch-catalog-search* for **AppName** and *merch-online* for **Company Name**. 
+ * Set the *SEARCH_DATASET_LOCATION* as the **Location**.
+ * In the next step, choose **CREATE A NEW DATASTORE**. 
+ * Select the bucket we created in the previous step and select **JSON for structured data with metadata (Preview)** as the type of data you are importing. 
+ * Give the name *merch-catalog* as the **Datastore name**. 
+ * This should generate a datastore-id automatically that looks something like this *merch-catalog-123456789*. 
+ * Store this value as an environment variable.
+     ```bash
     export CATALOG=<datastore_id>
     ```
-    You can preview the search app, by navigating to the *Preview* section of the app, and configuring the widget to preview the fields of the dataset that you find interesting. Doing a search for an item should yeild good results.
+
+ At the end of this step, you should have a *Vertex Search App* and a connected *datastore*. 
+
+
+2. You can preview the search app, by navigating to the *Preview* section of the app, and configuring the widget to preview the fields of the dataset that you find interesting. Doing a search for an item should yeild good results.
 
   <img src="images/search_app.png" alt="Testing Search App" width="800"/>
 
