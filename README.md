@@ -42,7 +42,7 @@ If you have this enabled on your project, let's get started.
     
     ```bash
     export PROJECT_ID=<project_id>
-    export SEARCH_DATASTORE_LOCATION=GLOBAL
+    export SEARCH_DATASTORE_LOCATION=global
     export REGION=<location of bucket and other infra>
     ```
 1. Set your active project
