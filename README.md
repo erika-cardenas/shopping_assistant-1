@@ -222,11 +222,13 @@ Navigate to the dialogflow console *https://dialogflow.cloud.google.com/cx/proje
 echo https://$REGION-$PROJECT_ID.cloudfunctions.net/format_products
 ```
 Click *SAVE* on the webhook.
+
 8. Go to the **get_sellers** webhook and do the same. Get the URL by running the following command
 ```bash
 echo https://$REGION-$PROJECT_ID.cloudfunctions.net/format_sellers
 ```
 Click *SAVE* on the webhook.
+
 9. Go back to the **Generative Resources** tab in the top left part of the page and select **TOOLS**. 
 10. Go to the *inventory_quick_check* tool and replace url *https://example.com* in the schema with the URL of the product_check function. et the URL by running the following command
 ```bash
